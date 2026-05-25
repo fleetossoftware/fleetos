@@ -309,9 +309,23 @@ nav ul a:hover{color:var(--green)}
     <div class="footer-logo-wrap"><span class="logo-dot"></span>FleetOS</div>
     <p class="footer-p">Software de gestión de flotas para rent-a-car, concesionarios y flotas corporativas. Hecho en España.</p>
   </div>
-  <div class="footer-col"><h5>Producto</h5><ul><li>Funciones</li><li>Integraciones</li><li>Precios</li><li>Novedades</li></ul></div>
-  <div class="footer-col"><h5>Empresa</h5><ul><li>Quiénes somos</li><li>Blog</li><li>Casos de éxito</li><li>Contacto</li></ul></div>
-  <div class="footer-col"><h5>Legal</h5><ul><li>Privacidad</li><li>Términos de uso</li><li>Cookies</li></ul></div>
+  <div class="footer-col"><h5>Producto</h5><ul>
+    <li onclick="openLegal('funciones')">Funciones</li>
+    <li onclick="openLegal('integraciones')">Integraciones</li>
+    <li onclick="openLegal('precios')">Precios</li>
+    <li onclick="openLegal('novedades')">Novedades</li>
+  </ul></div>
+  <div class="footer-col"><h5>Empresa</h5><ul>
+    <li onclick="openLegal('quienes')">Quiénes somos</li>
+    <li onclick="openLegal('blog')">Blog</li>
+    <li onclick="openLegal('casos')">Casos de éxito</li>
+    <li onclick="openLegal('contacto')">Contacto</li>
+  </ul></div>
+  <div class="footer-col"><h5>Legal</h5><ul>
+    <li onclick="openLegal('privacidad')">Privacidad</li>
+    <li onclick="openLegal('terminos')">Términos de uso</li>
+    <li onclick="openLegal('cookies')">Cookies</li>
+  </ul></div>
 </div>
 <div class="footer-bottom">
   <span>© 2025 FleetOS. Todos los derechos reservados.</span>
@@ -588,5 +602,340 @@ document.querySelectorAll('nav ul a').forEach(a=>{
   ¡Listo! Con eso los emails funcionan al 100%.
 =================================================================
 -->
+<!-- ===== MODAL LEGAL ===== -->
+<div class="modal-overlay" id="legal-modal" onclick="closeLegalOutside(event)" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:20px;max-width:700px;width:100%;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,.25)">
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:22px 28px;border-bottom:1px solid #E8F0EC">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="width:8px;height:8px;background:#2ECC71;border-radius:50%;display:inline-block"></span>
+        <span style="font-weight:700;font-size:1rem;color:#1C2B22;font-family:'Sora',sans-serif">FleetOS</span>
+      </div>
+      <button onclick="closeLegal()" style="background:none;border:none;cursor:pointer;font-size:22px;color:#6B7B70;line-height:1;padding:4px">×</button>
+    </div>
+    <!-- Content -->
+    <div id="legal-content" style="overflow-y:auto;padding:28px;flex:1;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;line-height:1.8;color:#374151"></div>
+  </div>
+</div>
+
+<style>
+.legal-modal-open{overflow:hidden}
+#legal-modal.open{display:flex!important}
+#legal-modal h1{font-size:1.5rem;font-weight:800;color:#1C2B22;margin-bottom:6px;font-family:'Sora',sans-serif}
+#legal-modal h2{font-size:1rem;font-weight:700;color:#1A7A4A;margin:22px 0 8px;font-family:'Sora',sans-serif}
+#legal-modal p{margin-bottom:12px;color:#4B5563}
+#legal-modal ul{padding-left:20px;margin-bottom:12px;color:#4B5563}
+#legal-modal ul li{margin-bottom:6px}
+#legal-modal .badge{display:inline-block;background:#F0FAF5;color:#1A7A4A;border:1px solid #D4E8DC;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;margin-bottom:16px}
+#legal-modal a{color:#1A7A4A;text-decoration:underline}
+#legal-modal hr{border:none;border-top:1px solid #E8F0EC;margin:20px 0}
+</style>
+
+<script>
+const LEGAL_CONTENT = {
+  funciones: {
+    title: 'Funciones de FleetOS',
+    body: `
+      <span class="badge">🚀 En desarrollo activo</span>
+      <h1>Funciones de FleetOS</h1>
+      <p>FleetOS es un software de gestión de flotas diseñado para rent-a-car, concesionarios y flotas corporativas. Estas son las funcionalidades disponibles:</p>
+      <h2>Panel de flota en tiempo real</h2>
+      <p>Visualiza el estado de cada vehículo al instante: en taller, autorizado, en reparación, pendiente de factura o entregado. KPIs en vivo con el número de coches en cada estado.</p>
+      <h2>Gestión de presupuestos</h2>
+      <p>El taller sube el presupuesto con desglose de líneas. El gestor de flota lo recibe, revisa y autoriza o rechaza con un clic. Email automático en cada paso.</p>
+      <h2>Talleres y tarifas acordadas</h2>
+      <p>Registra todos tus talleres habituales y añade tarifas acordadas por servicio. Cuando el taller elabora un presupuesto, los precios se autorellenan solos.</p>
+      <h2>Módulo Talleres — Clientes</h2>
+      <p>Para talleres independientes: ficha de cliente, apertura de casos, presupuesto en PDF enviado por email o WhatsApp, y factura al cierre. Todo trazado.</p>
+      <h2>Informes automáticos</h2>
+      <p>Informes semanales y mensuales por taller: número de reparaciones, importe total, días medios, importe por vehículo. Exporta a Excel con un clic.</p>
+      <h2>Base de vehículos corporativa</h2>
+      <p>Importa tu flota completa desde un CSV o conéctala vía API. Al escribir una matrícula, el sistema autocompleta marca, modelo y kilómetros automáticamente.</p>
+      <h2>Acceso móvil y escritorio</h2>
+      <p>La aplicación funciona igual en ordenador, tablet y móvil. Diseño responsive optimizado para iOS y Android sin necesidad de instalar nada.</p>
+      <hr>
+      <p style="font-size:12px;color:#9CA3AF">FleetOS está actualmente en desarrollo. Las funcionalidades pueden variar en la versión final. Para más información, <a href="mailto:Fleetossoftware@gmail.com">contáctanos</a>.</p>
+    `
+  },
+  integraciones: {
+    title: 'Integraciones',
+    body: `
+      <span class="badge">🔗 Disponibles y en desarrollo</span>
+      <h1>Integraciones</h1>
+      <p>FleetOS está diseñado para conectarse con los sistemas que ya usas en tu empresa.</p>
+      <h2>Integración con sistema corporativo (API)</h2>
+      <p>Si tu empresa dispone de una API o base de datos de vehículos, FleetOS puede conectarse para importar automáticamente matrícula, modelo, kilómetros y delegación sin intervención manual.</p>
+      <h2>Importación CSV / Excel</h2>
+      <p>Si no tienes API, puedes subir un archivo CSV o Excel con tu flota completa. El sistema detecta las columnas automáticamente y actualiza la base de vehículos.</p>
+      <h2>Email automático (EmailJS)</h2>
+      <p>Las notificaciones entre gestor y taller se envían por email de forma automática: apertura de caso, presupuesto, autorización, reparación, recepción y factura.</p>
+      <h2>WhatsApp (módulo talleres)</h2>
+      <p>En el módulo de talleres para clientes, los presupuestos y facturas en PDF pueden enviarse directamente por WhatsApp al número de teléfono del cliente.</p>
+      <h2>Próximamente</h2>
+      <ul>
+        <li>Integración con sistemas ERP (SAP, Odoo)</li>
+        <li>Sincronización con plataformas de gestión de concesionarios</li>
+        <li>API pública para desarrolladores</li>
+        <li>Webhooks para notificaciones en tiempo real</li>
+      </ul>
+      <hr>
+      <p style="font-size:12px;color:#9CA3AF">¿Necesitas una integración específica? <a href="mailto:Fleetossoftware@gmail.com">Escríbenos</a> y lo valoramos.</p>
+    `
+  },
+  precios: {
+    title: 'Precios',
+    body: `
+      <span class="badge">🚧 En desarrollo — Precio especial beta</span>
+      <h1>Precios</h1>
+      <p>FleetOS está actualmente en fase beta. Durante este período, ofrecemos condiciones especiales a las empresas que se unan primero.</p>
+      <h2>Plan Beta — Acceso anticipado</h2>
+      <ul>
+        <li><strong>Precio especial</strong> para las primeras empresas que se incorporen</li>
+        <li>Acceso completo a todas las funcionalidades</li>
+        <li>Configuración personalizada incluida</li>
+        <li>Soporte directo del equipo de desarrollo</li>
+        <li>Influencia en el roadmap del producto</li>
+      </ul>
+      <h2>¿Cómo funciona?</h2>
+      <p>Solicita una demo gratuita de 20 minutos. Si FleetOS encaja con tu empresa, te presentamos una propuesta personalizada adaptada al tamaño de tu flota y tus necesidades.</p>
+      <h2>Sin contratos de permanencia</h2>
+      <p>Durante la fase beta no exigimos contratos de larga duración. Queremos que pruebes la herramienta y que la elijas porque funciona.</p>
+      <hr>
+      <p><a href="mailto:Fleetossoftware@gmail.com" style="background:#1A7A4A;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:600;display:inline-block;margin-top:6px">Solicitar precio personalizado</a></p>
+    `
+  },
+  novedades: {
+    title: 'Novedades',
+    body: `
+      <span class="badge">📋 Changelog</span>
+      <h1>Novedades y actualizaciones</h1>
+      <h2>Mayo 2025 — v0.8 Beta</h2>
+      <ul>
+        <li>✅ Nuevo módulo Talleres para gestión de clientes particulares</li>
+        <li>✅ Envío de presupuestos y facturas por email y WhatsApp</li>
+        <li>✅ Sistema de tarifas acordadas por taller con autocompletado de precios</li>
+        <li>✅ Informes automáticos con gráfico de barras por taller</li>
+        <li>✅ Base de vehículos corporativa con importación CSV</li>
+        <li>✅ Diseño responsive optimizado para móvil</li>
+        <li>✅ Selector de recambios con más de 200 piezas catalogadas</li>
+      </ul>
+      <h2>Abril 2025 — v0.6 Beta</h2>
+      <ul>
+        <li>✅ Panel de KPIs en tiempo real</li>
+        <li>✅ Flujo completo presupuesto → autorización → factura</li>
+        <li>✅ Gestión de talleres y zonas</li>
+        <li>✅ Notificaciones por email automáticas en cada paso</li>
+        <li>✅ Módulo de informes semanales y mensuales</li>
+      </ul>
+      <h2>Próximas funcionalidades</h2>
+      <ul>
+        <li>🔜 App nativa para iOS y Android</li>
+        <li>🔜 Backend con Firebase para datos persistentes multi-usuario</li>
+        <li>🔜 Integración con sistemas corporativos vía API</li>
+        <li>🔜 Dashboard ejecutivo con métricas avanzadas</li>
+        <li>🔜 Módulo de citas para talleres</li>
+      </ul>
+      <hr>
+      <p style="font-size:12px;color:#9CA3AF">Para recibir novedades por email, <a href="mailto:Fleetossoftware@gmail.com">suscríbete aquí</a>.</p>
+    `
+  },
+  quienes: {
+    title: 'Quiénes somos',
+    body: `
+      <span class="badge">👋 Hecho desde dentro del sector</span>
+      <h1>Quiénes somos</h1>
+      <p>FleetOS nació de una frustración real. Somos gestores de flota que, después de años buscando una solución que se adaptara a cómo trabajamos realmente, decidimos construirla nosotros mismos.</p>
+      <h2>Nuestra historia</h2>
+      <p>Como Base Manager en una empresa de rent-a-car en España, vivíamos cada día el mismo problema: Excels de 800 filas, llamadas constantes al taller para saber si el coche estaba listo, presupuestos llegando por WhatsApp, y facturas sorpresa a final de mes.</p>
+      <p>Ninguna herramienta del mercado se adaptaba a nuestra forma de trabajar. Así que construimos la nuestra.</p>
+      <h2>Nuestra misión</h2>
+      <p>Dar a los gestores de flota, rent-a-car, concesionarios y talleres una herramienta que centralice todo el proceso de reparación y mantenimiento — desde que se abre el caso hasta que se cierra la factura — sin llamadas, sin Excel y sin sorpresas.</p>
+      <h2>Dónde estamos</h2>
+      <p>🇪🇸 Bilbao, País Vasco, España. Desarrollando FleetOS con empresas del sector automoción del norte de España.</p>
+      <hr>
+      <p><strong>Contacto:</strong> <a href="mailto:Fleetossoftware@gmail.com">Fleetossoftware@gmail.com</a></p>
+    `
+  },
+  blog: {
+    title: 'Blog',
+    body: `
+      <span class="badge">✍️ Próximamente</span>
+      <h1>Blog FleetOS</h1>
+      <p>Estamos preparando contenido útil para gestores de flota, rent-a-car y talleres. Próximamente publicaremos artículos sobre:</p>
+      <h2>Temáticas previstas</h2>
+      <ul>
+        <li>Cómo reducir los días de taller en tu flota</li>
+        <li>El coste real de un coche parado: cómo calcularlo</li>
+        <li>Digitalización de flotas: por dónde empezar</li>
+        <li>Gestión de talleres en rent-a-car: errores comunes</li>
+        <li>Cómo negociar tarifas con talleres y llevarles el control</li>
+        <li>KPIs que todo gestor de flota debería medir cada semana</li>
+      </ul>
+      <p>Si quieres que te avisemos cuando publiquemos el primer artículo, escríbenos a <a href="mailto:Fleetossoftware@gmail.com">Fleetossoftware@gmail.com</a>.</p>
+    `
+  },
+  casos: {
+    title: 'Casos de éxito',
+    body: `
+      <span class="badge">🚧 En construcción</span>
+      <h1>Casos de éxito</h1>
+      <p>FleetOS está actualmente en fase beta. Estamos trabajando con las primeras empresas del sector para recoger sus resultados y publicarlos aquí.</p>
+      <h2>¿Quieres ser el primero?</h2>
+      <p>Si tu empresa prueba FleetOS durante la fase beta, te ofrecemos:</p>
+      <ul>
+        <li>Precio especial permanente como early adopter</li>
+        <li>Configuración personalizada por nuestro equipo</li>
+        <li>Tu caso de éxito publicado en esta sección (si lo deseas)</li>
+        <li>Acceso prioritario a nuevas funcionalidades</li>
+      </ul>
+      <p>Las primeras empresas que confíen en FleetOS formarán parte de la historia del producto. Y eso tiene valor.</p>
+      <hr>
+      <p><a href="mailto:Fleetossoftware@gmail.com" style="background:#1A7A4A;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:600;display:inline-block;margin-top:6px">Quiero ser early adopter</a></p>
+    `
+  },
+  contacto: {
+    title: 'Contacto',
+    body: `
+      <h1>Contacto</h1>
+      <p>Estamos disponibles para cualquier consulta, propuesta de demo o colaboración.</p>
+      <h2>Email</h2>
+      <p><a href="mailto:Fleetossoftware@gmail.com">Fleetossoftware@gmail.com</a></p>
+      <h2>Instagram</h2>
+      <p><a href="https://instagram.com/fleetos.es" target="_blank">@fleetos.es</a></p>
+      <h2>Web</h2>
+      <p><a href="https://fleetos.es" target="_blank">fleetos.es</a></p>
+      <h2>Horario</h2>
+      <p>Respondemos en menos de 24 horas en días laborables. Para demos, propón día y hora y lo organizamos.</p>
+      <h2>¿Quieres una demo?</h2>
+      <p>La demo dura 20 minutos, es gratuita y la hacemos con los datos reales de tu empresa. Sin presentaciones genéricas.</p>
+      <hr>
+      <p><a href="mailto:Fleetossoftware@gmail.com?subject=Solicitud de demo FleetOS" style="background:#1A7A4A;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:600;display:inline-block;margin-top:6px">Solicitar demo por email</a></p>
+    `
+  },
+  privacidad: {
+    title: 'Política de Privacidad',
+    body: `
+      <span class="badge">📄 Última actualización: Mayo 2025</span>
+      <h1>Política de Privacidad</h1>
+      <p>En FleetOS (en adelante, "la empresa") nos tomamos muy en serio la privacidad de nuestros usuarios. Esta política describe cómo recogemos, usamos y protegemos tus datos.</p>
+      <h2>1. Responsable del tratamiento</h2>
+      <p><strong>FleetOS</strong> — Bilbao, País Vasco, España.<br>Email de contacto: <a href="mailto:Fleetossoftware@gmail.com">Fleetossoftware@gmail.com</a></p>
+      <h2>2. Datos que recogemos</h2>
+      <ul>
+        <li><strong>Formulario de demo:</strong> nombre, empresa, email y teléfono. Usados exclusivamente para contactar contigo sobre tu solicitud.</li>
+        <li><strong>Uso de la aplicación:</strong> datos de flota, vehículos y talleres introducidos por el usuario en la plataforma.</li>
+        <li><strong>Datos técnicos:</strong> dirección IP, tipo de navegador y páginas visitadas, recogidos de forma anónima para mejorar el servicio.</li>
+      </ul>
+      <h2>3. Finalidad del tratamiento</h2>
+      <ul>
+        <li>Gestionar las solicitudes de demo y contacto.</li>
+        <li>Prestar el servicio de gestión de flotas.</li>
+        <li>Mejorar la plataforma y la experiencia de usuario.</li>
+        <li>Cumplir obligaciones legales.</li>
+      </ul>
+      <h2>4. Base legal</h2>
+      <p>El tratamiento se basa en el consentimiento del usuario al rellenar el formulario de contacto, y en la ejecución del contrato de servicio una vez activada la cuenta.</p>
+      <h2>5. Conservación de datos</h2>
+      <p>Los datos se conservan durante el tiempo necesario para prestar el servicio y, en el caso de los datos de contacto, hasta que solicites su eliminación.</p>
+      <h2>6. Tus derechos</h2>
+      <p>Tienes derecho a acceder, rectificar, suprimir, limitar el tratamiento, portabilidad y oposición. Para ejercerlos, escríbenos a <a href="mailto:Fleetossoftware@gmail.com">Fleetossoftware@gmail.com</a>.</p>
+      <h2>7. Transferencias internacionales</h2>
+      <p>No realizamos transferencias de datos a terceros países fuera del Espacio Económico Europeo, salvo que sea necesario para prestar el servicio con las garantías adecuadas.</p>
+      <h2>8. Seguridad</h2>
+      <p>Aplicamos medidas técnicas y organizativas para proteger tus datos contra accesos no autorizados, pérdida o alteración.</p>
+      <hr>
+      <p style="font-size:12px;color:#9CA3AF">Cualquier duda sobre esta política: <a href="mailto:Fleetossoftware@gmail.com">Fleetossoftware@gmail.com</a></p>
+    `
+  },
+  terminos: {
+    title: 'Términos de Uso',
+    body: `
+      <span class="badge">📄 Última actualización: Mayo 2025</span>
+      <h1>Términos de Uso</h1>
+      <p>Al acceder y utilizar FleetOS, aceptas los siguientes términos. Si no estás de acuerdo, no debes usar el servicio.</p>
+      <h2>1. Descripción del servicio</h2>
+      <p>FleetOS es una plataforma de software de gestión de flotas, presupuestos y talleres para empresas del sector automoción. El servicio se presta actualmente en fase beta.</p>
+      <h2>2. Uso permitido</h2>
+      <ul>
+        <li>El acceso está destinado a uso profesional y empresarial.</li>
+        <li>Cada usuario es responsable de mantener la confidencialidad de sus credenciales de acceso.</li>
+        <li>Está prohibido usar la plataforma para actividades ilegales o que vulneren derechos de terceros.</li>
+      </ul>
+      <h2>3. Propiedad intelectual</h2>
+      <p>Todo el software, diseño, textos y funcionalidades de FleetOS son propiedad exclusiva de la empresa. Queda prohibida su reproducción, distribución o modificación sin autorización expresa.</p>
+      <h2>4. Datos del usuario</h2>
+      <p>Los datos de flota, clientes y vehículos introducidos en la plataforma son propiedad del usuario. FleetOS no cede estos datos a terceros sin consentimiento expreso.</p>
+      <h2>5. Disponibilidad del servicio</h2>
+      <p>Nos comprometemos a mantener el servicio disponible con el mayor tiempo de actividad posible. Sin embargo, durante la fase beta pueden producirse interrupciones para mantenimiento o mejoras.</p>
+      <h2>6. Limitación de responsabilidad</h2>
+      <p>FleetOS no se hace responsable de daños indirectos derivados del uso o la imposibilidad de uso del servicio, ni de decisiones empresariales tomadas basándose en los datos de la plataforma.</p>
+      <h2>7. Modificaciones</h2>
+      <p>Nos reservamos el derecho a modificar estos términos notificándolo con al menos 15 días de antelación por email.</p>
+      <h2>8. Legislación aplicable</h2>
+      <p>Estos términos se rigen por la legislación española. Para cualquier controversia, las partes se someten a los juzgados de Bilbao.</p>
+      <hr>
+      <p style="font-size:12px;color:#9CA3AF">Contacto: <a href="mailto:Fleetossoftware@gmail.com">Fleetossoftware@gmail.com</a></p>
+    `
+  },
+  cookies: {
+    title: 'Política de Cookies',
+    body: `
+      <span class="badge">🍪 Última actualización: Mayo 2025</span>
+      <h1>Política de Cookies</h1>
+      <p>Este sitio web usa cookies para mejorar la experiencia de navegación. A continuación te explicamos qué son, cuáles usamos y cómo puedes gestionarlas.</p>
+      <h2>¿Qué son las cookies?</h2>
+      <p>Las cookies son pequeños archivos de texto que se almacenan en tu dispositivo cuando visitas un sitio web. Permiten recordar tus preferencias y mejorar la funcionalidad del sitio.</p>
+      <h2>Cookies que utilizamos</h2>
+      <h2>Cookies técnicas (necesarias)</h2>
+      <ul>
+        <li><strong>Sesión de usuario:</strong> mantienen la sesión activa mientras usas la plataforma.</li>
+        <li><strong>Preferencias:</strong> guardan configuraciones básicas de la interfaz.</li>
+      </ul>
+      <p>Estas cookies son imprescindibles para el funcionamiento del servicio y no pueden desactivarse.</p>
+      <h2>Cookies analíticas (opcionales)</h2>
+      <ul>
+        <li><strong>Análisis de uso:</strong> recopilan información anónima sobre cómo se usa el sitio para mejorar su funcionamiento.</li>
+      </ul>
+      <h2>Cookies de terceros</h2>
+      <p>FleetOS no utiliza actualmente cookies de publicidad ni de redes sociales de terceros.</p>
+      <h2>Cómo gestionar las cookies</h2>
+      <p>Puedes configurar tu navegador para bloquear o eliminar cookies. Ten en cuenta que algunas funcionalidades pueden dejar de funcionar correctamente si desactivas las cookies técnicas.</p>
+      <ul>
+        <li><a href="https://support.google.com/chrome/answer/95647" target="_blank">Chrome</a></li>
+        <li><a href="https://support.mozilla.org/es/kb/habilitar-y-deshabilitar-cookies-sitios-web" target="_blank">Firefox</a></li>
+        <li><a href="https://support.apple.com/es-es/guide/safari/sfri11471/mac" target="_blank">Safari</a></li>
+      </ul>
+      <hr>
+      <p style="font-size:12px;color:#9CA3AF">Para más información: <a href="mailto:Fleetossoftware@gmail.com">Fleetossoftware@gmail.com</a></p>
+    `
+  }
+};
+
+function openLegal(key) {
+  const data = LEGAL_CONTENT[key];
+  if (!data) return;
+  document.getElementById('legal-content').innerHTML = data.body;
+  const modal = document.getElementById('legal-modal');
+  modal.classList.add('open');
+  modal.style.display = 'flex';
+  document.body.classList.add('legal-modal-open');
+  // scroll to top of content
+  document.getElementById('legal-content').scrollTop = 0;
+}
+
+function closeLegal() {
+  const modal = document.getElementById('legal-modal');
+  modal.classList.remove('open');
+  modal.style.display = 'none';
+  document.body.classList.remove('legal-modal-open');
+}
+
+function closeLegalOutside(e) {
+  if (e.target === document.getElementById('legal-modal')) closeLegal();
+}
+
+// Cerrar con Escape
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLegal(); });
+</script>
 </body>
 </html>
