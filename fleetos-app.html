@@ -1,0 +1,3251 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>FleetOS — App</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#1A7A4A;--gl:#2ECC71;--gbg:#f0faf5;--gb:#D4E8DC;
+  --text:#1C2B22;--t2:#6B7B70;--bd:#E2E8E5;--bg:#F7FAF8;--wh:#fff;
+  --sh:0 2px 8px rgba(0,0,0,0.07);
+}
+html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+.app{display:flex;height:100vh}
+
+/* LOGIN */
+#login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;gap:1.5rem;padding:2rem}
+.logo-mark{font-size:22px;font-weight:700;color:var(--green);display:flex;align-items:center;gap:8px}
+.logo-dot{width:10px;height:10px;background:var(--gl);border-radius:50%}
+.role-cards{display:flex;flex-direction:column;gap:10px;width:100%;max-width:360px}
+.rc{background:var(--wh);border:1.5px solid var(--bd);border-radius:12px;cursor:pointer;overflow:hidden;transition:all 0.2s;box-shadow:var(--sh)}
+.rc:hover{border-color:var(--green)}
+.rc.selected{border-color:var(--green);box-shadow:0 4px 16px rgba(26,122,74,0.12)}
+.rc-top{display:flex;align-items:center;gap:14px;padding:14px 18px}
+.rc-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.rc-title{font-size:14px;font-weight:600}
+.rc-desc{font-size:12px;color:var(--t2);margin-top:2px}
+.rc-email-wrap{display:none;padding:0 18px 14px;flex-direction:column;gap:8px}
+.rc.selected .rc-email-wrap{display:flex}
+.rc-email-wrap input{width:100%;padding:8px 12px;font-size:13px;border:1px solid var(--bd);border-radius:8px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
+.rc-email-wrap input:focus{border-color:var(--green)}
+.btn-entrar{background:var(--green);color:#fff;border:none;padding:9px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .2s}
+.btn-entrar:hover{background:#15663d}
+
+/* SIDEBAR */
+.sidebar{width:220px;flex-shrink:0;background:var(--wh);border-right:1px solid var(--bd);display:flex;flex-direction:column;height:100vh}
+.sb-logo{padding:18px 20px;border-bottom:1px solid var(--bd);font-size:16px;font-weight:700;color:var(--green);display:flex;align-items:center;gap:8px}
+.sb-user{padding:12px 20px;border-bottom:1px solid var(--bd)}
+.sb-name{font-size:13px;font-weight:600}
+.sb-email{font-size:11px;color:var(--t2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-nav{padding:8px 0;flex:1}
+.sbi{display:flex;align-items:center;gap:10px;padding:9px 20px;font-size:13px;color:var(--t2);cursor:pointer;transition:all .15s;border-left:3px solid transparent}
+.sbi:hover{background:var(--bg);color:var(--text)}
+.sbi.active{background:var(--gbg);color:var(--green);font-weight:500;border-left-color:var(--green)}
+.sbi i{font-size:17px}
+.sb-bot{padding:12px 0;border-top:1px solid var(--bd)}
+.sb-out{display:flex;align-items:center;gap:10px;padding:9px 20px;font-size:13px;color:var(--t2);cursor:pointer}
+.sb-out:hover{color:#C62828}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;min-height:0}
+.topbar{padding:14px 24px;background:var(--wh);border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.topbar-title{font-size:15px;font-weight:600}
+.topbar-right{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.content{padding:20px 24px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:16px}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.kpi{background:var(--wh);border:1px solid var(--bd);border-radius:12px;padding:16px;box-shadow:var(--sh)}
+.kpi-lbl{font-size:11px;color:var(--t2);margin-bottom:8px;display:flex;align-items:center;gap:6px;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+.kpi-lbl i{font-size:15px}
+.kpi-val{font-size:26px;font-weight:600;line-height:1}
+.kpi-sub{font-size:11px;margin-top:5px;color:var(--t2)}
+.kpi-up{color:#C62828}.kpi-dn{color:var(--green)}
+
+/* CARD / TABLE */
+.card{background:var(--wh);border:1px solid var(--bd);border-radius:12px;overflow:hidden;box-shadow:var(--sh)}
+.card-head{padding:12px 16px;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center}
+.card-title{font-size:13px;font-weight:600}
+table{width:100%;border-collapse:collapse}
+th{padding:9px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--t2);border-bottom:1px solid var(--bd);background:#FAFCFB;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+td{padding:9px 14px;border-bottom:1px solid var(--bd);font-size:13px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg)}
+.mat{font-weight:600;font-size:13px}
+.sub{color:var(--t2);font-size:11px;margin-top:1px}
+.warn{color:#C62828;font-weight:600}
+
+/* BADGES */
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+.b-pte-pre{background:#F3E5F5;color:#6A1B9A;border:1px solid #CE93D8}
+.b-pte-aut{background:#E3F2FD;color:#0D47A1;border:1px solid #90CAF9}
+.b-aut    {background:#FFF3E0;color:#E65100;border:1px solid #FFCC80}
+.b-pte-rec{background:#FCE4EC;color:#880E4F;border:1px solid #F48FB1}
+.b-rep    {background:#EAF3DE;color:#3B6D11;border:1px solid #C0DD97}
+.b-pte-fac{background:#E8EAF6;color:#283593;border:1px solid #9FA8DA}
+.rb-admin{background:#EDE7F6;color:#4527A0;border:1px solid #B39DDB;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500}
+.rb-gestor{background:var(--gbg);color:var(--green);border:1px solid var(--gb);font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500}
+.rb-taller{background:#FFF3E0;color:#E65100;border:1px solid #FFCC80;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500}
+
+/* BUTTONS */
+.btn-p{background:var(--green);color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:'Inter',sans-serif;transition:background .2s}
+.btn-p:hover{background:#15663d}
+.btn-p i{font-size:15px}
+.btn-g{background:var(--wh);color:var(--t2);border:1px solid var(--bd);padding:7px 14px;border-radius:8px;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-family:'Inter',sans-serif;transition:all .2s}
+.btn-g:hover{border-color:var(--green);color:var(--green)}
+.btn-ok{background:var(--gbg);color:var(--green);border:1px solid var(--gb);padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;transition:all .2s;display:inline-flex;align-items:center;gap:4px}
+.btn-ok:hover{background:var(--green);color:#fff}
+.btn-deny{background:#FFEBEE;color:#C62828;border:1px solid #EF9A9A;padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;transition:all .2s;display:inline-flex;align-items:center;gap:4px}
+.btn-deny:hover{background:#C62828;color:#fff}
+.btn-blue{background:#E3F2FD;color:#0D47A1;border:1px solid #90CAF9;padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;display:inline-flex;align-items:center;gap:4px;transition:all .2s}
+.btn-blue:hover{background:#0D47A1;color:#fff}
+.btn-rep{background:#EAF3DE;color:#3B6D11;border:1px solid #C0DD97;padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;display:inline-flex;align-items:center;gap:4px;transition:all .2s}
+.btn-rep:hover{background:#3B6D11;color:#fff}
+.btn-fact{background:#E8EAF6;color:#283593;border:1px solid #9FA8DA;padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;display:inline-flex;align-items:center;gap:4px;transition:all .2s}
+.btn-fact:hover{background:#283593;color:#fff}
+.btn-rec{background:#FCE4EC;color:#880E4F;border:1px solid #F48FB1;padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;display:inline-flex;align-items:center;gap:4px;transition:all .2s}
+.btn-rec:hover{background:#880E4F;color:#fff}
+
+/* FILTERS */
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.fbtn{font-size:11px;padding:4px 12px;border-radius:20px;border:1px solid var(--bd);background:var(--wh);color:var(--t2);cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.fbtn.active{background:var(--gbg);color:var(--green);border-color:var(--gb);font-weight:500}
+.fbtn:hover:not(.active){border-color:var(--green);color:var(--green)}
+
+/* FIELD */
+.field{margin-bottom:12px}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--t2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em}
+.field input,.field select,.field textarea{width:100%;padding:8px 10px;font-size:13px;border:1px solid var(--bd);border-radius:8px;background:var(--wh);color:var(--text);font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--green)}
+.field textarea{resize:vertical;min-height:70px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* PRESUPUESTO LÍNEAS */
+.pres-lineas{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.pl-hdr{display:grid;grid-template-columns:2fr 110px 90px 70px 32px;gap:6px;padding:0 10px;font-size:10px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.05em}
+.pl{display:grid;grid-template-columns:2fr 110px 90px 70px 32px;gap:6px;align-items:center;background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:8px 10px}
+.pl input,.pl select{padding:6px 8px;font-size:12px;border:1px solid var(--bd);border-radius:6px;background:var(--wh);color:var(--text);font-family:'Inter',sans-serif;outline:none;width:100%;transition:border-color .2s}
+.pl input:focus,.pl select:focus{border-color:var(--green)}
+.pl .del{background:none;border:none;color:var(--bd);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:color .2s;padding:0}
+.pl .del:hover{color:#C62828}
+.total-row{display:flex;justify-content:flex-end;align-items:center;gap:1rem;padding:10px 14px;background:var(--gbg);border-radius:8px;border:1px solid var(--gb);margin-top:4px}
+.total-lbl{font-size:12px;color:var(--t2)}
+.total-val{font-size:18px;font-weight:700;color:var(--green)}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:500;align-items:center;justify-content:center;padding:1rem}
+.modal-bg.open{display:flex}
+.modal{background:var(--wh);border-radius:14px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.15);display:flex;flex-direction:column;max-height:90vh}
+.modal-hd{padding:16px 20px;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.modal-hd h3{font-size:15px;font-weight:600}
+.modal-bd{padding:18px 20px;overflow-y:auto;flex:1}
+.modal-ft{padding:12px 20px;border-top:1px solid var(--bd);display:flex;justify-content:flex-end;gap:8px;flex-shrink:0}
+
+/* PHOTO */
+.photo-drop{border:1.5px dashed var(--bd);border-radius:10px;padding:18px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;transition:all .2s;background:var(--bg);margin-top:4px}
+.photo-drop:hover{border-color:var(--green);background:var(--gbg)}
+.photo-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.thumb{position:relative;width:70px;height:70px;border-radius:8px;overflow:hidden;border:1px solid var(--bd)}
+.thumb img{width:100%;height:100%;object-fit:cover}
+
+/* PRESUPUESTO LIST */
+.pi{padding:14px 18px;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.pi:last-child{border-bottom:none}
+.pi-btns{display:flex;gap:6px;margin-top:8px}
+
+/* EMPTY */
+.empty{text-align:center;padding:2.5rem;color:var(--t2)}
+.empty i{font-size:32px;display:block;margin-bottom:10px;color:var(--bd)}
+
+/* EMAIL STATUS */
+.email-sending{opacity:.6;pointer-events:none}
+.notif-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;background:var(--gbg);color:var(--green);border:1px solid var(--gb);border-radius:20px;padding:2px 8px;margin-left:6px}
+
+/* RECAMBIOS */
+.rec-cat-btn{padding:7px 14px;font-size:11px;font-weight:600;color:var(--t2);background:none;border:none;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;font-family:'Inter',sans-serif;transition:all .15s}
+.rec-cat-btn.active{color:var(--green);border-bottom-color:var(--green)}
+.rec-cat-btn:hover:not(.active){color:var(--text)}
+.rec-item{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:7px;cursor:pointer;transition:background .15s;font-size:13px}
+.rec-item:hover{background:var(--gbg)}
+.rec-item.selected{background:var(--gbg);color:var(--green);font-weight:500}
+.rec-item-left{display:flex;align-items:center;gap:8px}
+.rec-item-left i{font-size:15px;color:var(--t2);width:18px;text-align:center}
+.rec-item.selected .rec-item-left i{color:var(--green)}
+.rec-add-btn{background:none;border:1px solid var(--bd);border-radius:6px;padding:2px 8px;font-size:11px;color:var(--t2);cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;white-space:nowrap}
+.rec-add-btn:hover{border-color:var(--green);color:var(--green)}
+.rec-tag{display:flex;align-items:center;gap:8px;background:var(--gbg);border:1px solid var(--gb);border-radius:8px;padding:6px 10px;font-size:12px}
+.rec-tag-name{flex:1;color:var(--text);font-weight:500}
+.rec-qty{display:flex;align-items:center;gap:4px}
+.rec-qty button{background:var(--wh);border:1px solid var(--bd);border-radius:4px;width:22px;height:22px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:var(--text);transition:all .15s}
+.rec-qty button:hover{border-color:var(--green);color:var(--green)}
+.rec-qty span{font-size:13px;font-weight:600;min-width:20px;text-align:center}
+.rec-remove{background:none;border:none;color:var(--bd);cursor:pointer;font-size:14px;padding:2px;transition:color .15s}
+.rec-remove:hover{color:#C62828}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bd);border-radius:10px}
+
+/* TALLERES */
+.taller-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.taller-card{background:var(--wh);border:1px solid var(--bd);border-radius:12px;padding:18px;box-shadow:var(--sh);transition:all .2s;position:relative}
+.taller-card:hover{border-color:var(--green);box-shadow:0 4px 16px rgba(26,122,74,0.1)}
+.taller-card.selected-card{border-color:var(--green);border-width:2px;background:var(--gbg)}
+.tc-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
+.tc-icon{width:42px;height:42px;background:var(--green);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tc-name{font-size:14px;font-weight:600;color:var(--text)}
+.tc-loc{font-size:12px;color:var(--t2);margin-top:2px}
+.tc-info{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.tc-info-row{font-size:12px;color:var(--t2);display:flex;align-items:center;gap:6px}
+.tc-info-row i{font-size:13px;width:14px}
+.tc-espec{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
+.tc-espec-tag{font-size:10px;padding:2px 7px;background:var(--gbg);border:1px solid var(--gb);border-radius:20px;color:var(--green);font-weight:500}
+.tc-actions{display:flex;gap:6px;justify-content:flex-end}
+.espec-check{display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;transition:all .15s;user-select:none}
+.espec-check.on{background:var(--gbg);border-color:var(--gb);color:var(--green);font-weight:500}
+.espec-check i{font-size:14px}
+
+/* BASEVEH */
+.veh-found-box{background:var(--gbg);border:1.5px solid var(--green);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:14px;animation:fadeIn .3s ease}
+.veh-found-icon{width:38px;height:38px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.veh-found-data{font-size:13px;font-weight:600;color:var(--text)}
+.veh-found-sub{font-size:11px;color:var(--t2);margin-top:2px}
+.veh-not-found{background:#FFF8E1;border:1px solid #F5D87A;border-radius:8px;padding:10px 14px;font-size:12px;color:#7B5E00}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.inf-bar-wrap{display:flex;align-items:flex-end;gap:10px;height:140px;padding:0 8px}
+.inf-bar-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;min-width:0}
+.inf-bar{border-radius:4px 4px 0 0;width:100%;transition:opacity .2s;cursor:default;min-height:4px}
+.inf-bar:hover{opacity:.8}
+.inf-bar-lbl{font-size:10px;color:var(--t2);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%}
+.inf-bar-val{font-size:10px;font-weight:600;color:var(--text)}
+
+@media print{
+  .sidebar,.topbar-right,#btn-abrir-caso-top,nav{display:none!important}
+  .main{overflow:visible!important}
+  .card{break-inside:avoid}
+}
+
+/* ══════════════════════════════════════════════════════
+   RESPONSIVE — MÓVIL
+══════════════════════════════════════════════════════ */
+@media(max-width:768px){
+
+  /* App root */
+  .app{flex-direction:column;height:100dvh}
+  html,body{height:100dvh;overflow:hidden}
+
+  /* Login */
+  #login-screen{padding:1.5rem 1rem;justify-content:flex-start;padding-top:3rem}
+  .logo-mark{font-size:20px}
+  .role-cards{max-width:100%}
+  .rc{border-radius:10px}
+  .rc-top{padding:12px 14px}
+  .rc-email-wrap{padding:0 14px 12px}
+  .btn-entrar{padding:10px}
+
+  /* Sidebar → Bottom nav */
+  .sidebar{
+    width:100%;height:56px;flex-direction:row;border-right:none;
+    border-top:1px solid var(--bd);order:2;flex-shrink:0;
+    overflow-x:auto;overflow-y:hidden;
+    background:var(--wh);
+  }
+  .sb-logo{display:none}
+  .sb-user{display:none}
+  .sb-nav{
+    display:flex;flex-direction:row;padding:0;flex:1;
+    align-items:stretch;overflow-x:auto;
+  }
+  .sbi{
+    flex-direction:column;gap:2px;padding:6px 10px;font-size:10px;
+    white-space:nowrap;min-width:60px;justify-content:center;align-items:center;
+    border-left:none;border-top:2px solid transparent;
+  }
+  .sbi.active{border-left:none;border-top-color:var(--green);background:var(--gbg)}
+  .sbi i{font-size:18px}
+  .sb-bot{display:none}
+
+  /* Main area */
+  .main{flex:1;min-height:0;order:1;overflow:hidden}
+
+  /* Topbar */
+  .topbar{padding:10px 14px;flex-wrap:wrap;gap:8px}
+  .topbar-title{font-size:14px}
+  .topbar-right{gap:6px;flex-wrap:wrap;width:100%}
+  #btn-abrir-caso-top{font-size:12px;padding:7px 12px}
+
+  /* Content */
+  .content{padding:12px 14px;gap:12px}
+
+  /* KPI grid */
+  .kpi-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .kpi{padding:12px}
+  .kpi-val{font-size:20px}
+  .kpi-lbl{font-size:10px}
+
+  /* Cards */
+  .card-head{padding:10px 14px;flex-wrap:wrap;gap:6px}
+  .card-title{font-size:12px}
+
+  /* Tables → scroll horizontal */
+  .card{overflow:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:540px;font-size:12px}
+  th{padding:8px 10px;font-size:10px}
+  td{padding:8px 10px}
+
+  /* Filters */
+  .filters{overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px}
+  .fbtn{font-size:10px;padding:4px 10px;white-space:nowrap}
+
+  /* Forms */
+  .frow{grid-template-columns:1fr}
+  .field input,.field select,.field textarea{font-size:16px;padding:10px 12px} /* 16px evita zoom en iOS */
+
+  /* Modales → full screen en móvil */
+  .modal-bg{padding:0;align-items:flex-end}
+  .modal{
+    border-radius:20px 20px 0 0;max-height:92dvh;width:100%;
+    max-width:100% !important;
+  }
+  .modal-hd{padding:14px 18px}
+  .modal-bd{padding:16px 18px}
+  .modal-ft{padding:12px 18px;padding-bottom:max(12px, env(safe-area-inset-bottom))}
+
+  /* Photo grid */
+  .photo-grid{gap:6px}
+  .thumb{width:64px;height:64px}
+
+  /* Presupuesto líneas */
+  .pl-hdr{display:none}
+  .pl{
+    grid-template-columns:1fr 1fr;
+    grid-template-rows:auto auto;
+    gap:6px;
+  }
+  .pl input:first-child{grid-column:1/-1}
+  .pl .del{grid-row:1;grid-column:2;justify-self:end}
+
+  /* Total row */
+  .total-row{flex-direction:column;align-items:flex-end;gap:4px;padding:10px 12px}
+  .total-val{font-size:20px}
+
+  /* Taller grid */
+  .taller-grid{grid-template-columns:1fr}
+
+  /* Informes */
+  .inf-bar-wrap{height:100px;gap:6px}
+  .inf-bar-lbl{font-size:9px}
+
+  /* Presupuesto items */
+  .pi{flex-direction:column;gap:8px;padding:12px 14px}
+  .pres-amount-mobile{font-size:18px;font-weight:700}
+
+  /* Toast */
+  .toast{bottom:68px;left:12px;right:12px;text-align:center}
+
+  /* Recambios */
+  #rec-lista{max-height:180px}
+  .rec-cat-btn{padding:6px 10px;font-size:10px}
+
+  /* Casos abiertos */
+  .veh-found-box{flex-direction:column;gap:8px}
+
+  /* Base veh */
+  #baseveh-kpis{grid-template-columns:1fr 1fr 1fr}
+}
+
+/* Pantallas muy pequeñas */
+@media(max-width:380px){
+  .kpi-grid{grid-template-columns:1fr 1fr}
+  .kpi-val{font-size:18px}
+  .sbi{min-width:52px;padding:6px 6px}
+  .sbi i{font-size:17px}
+}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:#1C2B22;color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,0.2);border-left:3px solid var(--gl);max-width:320px}
+.toast.show{opacity:1}
+
+/* SAFE AREA */
+@supports(padding:env(safe-area-inset-bottom)){
+  .sidebar{padding-bottom:env(safe-area-inset-bottom)}
+  @media(max-width:768px){
+    .toast{bottom:calc(68px + env(safe-area-inset-bottom))}
+  }
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+<!-- ════════════════════ LOGIN ════════════════════ -->
+<div id="login-screen">
+  <div class="logo-mark"><span class="logo-dot"></span>FleetOS</div>
+  <p style="font-size:13px;color:var(--t2);margin-top:-8px">Software de gestión de flotas</p>
+
+  <div style="width:100%;max-width:360px;display:flex;flex-direction:column;gap:14px">
+
+    <div class="field" style="margin:0">
+      <label style="font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.06em">Usuario</label>
+      <input type="email" id="login-email" placeholder="tu@empresa.com"
+        style="font-size:16px;padding:12px 14px;border:1.5px solid var(--bd);border-radius:10px;width:100%;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s;background:var(--wh);color:var(--text)"
+        onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--bd)'"
+        onkeydown="if(event.key==='Enter')document.getElementById('login-pass').focus()">
+    </div>
+
+    <div class="field" style="margin:0">
+      <label style="font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.06em">Contraseña</label>
+      <div style="position:relative">
+        <input type="password" id="login-pass" placeholder="••••••••"
+          style="font-size:16px;padding:12px 14px;padding-right:44px;border:1.5px solid var(--bd);border-radius:10px;width:100%;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s;background:var(--wh);color:var(--text)"
+          onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--bd)'"
+          onkeydown="if(event.key==='Enter')doLoginCredentials()">
+        <button onclick="togglePassVis()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--t2);font-size:16px;padding:4px">
+          <i class="ti ti-eye" id="pass-eye"></i>
+        </button>
+      </div>
+    </div>
+
+    <div id="login-error" style="display:none;background:#FFEBEE;border:1px solid #EF9A9A;border-radius:8px;padding:10px 14px;font-size:12px;color:#C62828;display:none;align-items:center;gap:8px">
+      <i class="ti ti-alert-circle" style="font-size:14px;flex-shrink:0"></i>
+      <span id="login-error-msg">Usuario o contraseña incorrectos</span>
+    </div>
+
+    <button onclick="doLoginCredentials()" id="btn-login"
+      style="background:var(--green);color:#fff;border:none;padding:13px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;width:100%"
+      onmouseover="this.style.background='#15663d'" onmouseout="this.style.background='var(--green)'">
+      <i class="ti ti-login" style="font-size:16px"></i>Entrar
+    </button>
+
+    <div style="text-align:center;padding-top:4px">
+      <span style="font-size:12px;color:var(--t2)">¿Problemas para acceder? </span>
+      <a href="mailto:Fleetossoftware@gmail.com" style="font-size:12px;color:var(--green);font-weight:600;text-decoration:none">Contactar soporte</a>
+    </div>
+
+  </div>
+
+  <!-- Usuarios de demo (visible solo en beta) -->
+  <div style="width:100%;max-width:360px;margin-top:8px;background:var(--gbg);border:1px solid var(--gb);border-radius:10px;padding:14px 16px">
+    <div style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">🔑 Accesos de demo</div>
+    <div style="display:flex;flex-direction:column;gap:6px" id="demo-users"></div>
+  </div>
+</div>
+
+<!-- ════════════════════ APP ════════════════════ -->
+<div id="main-app" style="display:none;width:100%;flex-direction:row">
+  <div class="sidebar">
+    <div class="sb-logo"><span class="logo-dot"></span>FleetOS</div>
+    <div class="sb-user">
+      <div class="sb-name" id="sb-name">—</div>
+      <div id="sb-badge" style="margin-top:4px"></div>
+      <div class="sb-email" id="sb-email"></div>
+    </div>
+    <div class="sb-nav">
+      <div class="sbi active" id="nav-dashboard" onclick="setView('dashboard')"><i class="ti ti-layout-dashboard"></i>Dashboard</div>
+      <div class="sbi" id="nav-vehiculos" onclick="setView('vehiculos')"><i class="ti ti-car"></i>Vehículos</div>
+      <div class="sbi" id="nav-presupuestos" onclick="setView('presupuestos')"><i class="ti ti-receipt"></i>Presupuestos</div>
+      <div class="sbi" id="nav-recepcion" onclick="setView('recepcion')"><i class="ti ti-clipboard-check"></i>Recepcionar</div>
+      <div class="sbi" id="nav-caso" onclick="setView('caso')"><i class="ti ti-clipboard-plus"></i>Abrir caso</div>
+      <div class="sbi" id="nav-talleres" onclick="setView('talleres')"><i class="ti ti-building"></i>Talleres</div>
+      <div class="sbi" id="nav-informes" onclick="setView('informes')"><i class="ti ti-chart-bar"></i>Informes</div>
+      <div class="sbi" id="nav-baseveh" onclick="setView('baseveh')"><i class="ti ti-database"></i>Base vehículos</div>
+      <div class="sbi" id="nav-tc-clientes" onclick="setView('tc-clientes')"><i class="ti ti-users"></i>Clientes</div>
+      <div class="sbi" id="nav-tc-casos" onclick="setView('tc-casos')"><i class="ti ti-clipboard-list"></i>Casos</div>
+      <div class="sbi" id="nav-tc-nuevo" onclick="setView('tc-nuevo')"><i class="ti ti-circle-plus"></i>Nuevo caso</div>
+    </div>
+    <div class="sb-bot">
+      <div class="sb-out" onclick="logout()"><i class="ti ti-logout"></i>Cerrar sesión</div>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div id="view-dashboard">
+      <div class="topbar">
+        <span class="topbar-title" id="dash-titulo">Dashboard</span>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-size:12px;color:var(--t2)" id="dash-date"></span>
+          <button id="btn-abrir-caso-top" onclick="setView('caso')" style="display:none;background:var(--green);color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:none;align-items:center;gap:6px;font-family:'Inter',sans-serif;transition:background .2s" onmouseover="this.style.background='#15663d'" onmouseout="this.style.background='var(--green)'">
+            <i class="ti ti-clipboard-plus" style="font-size:16px"></i>Abrir caso
+          </button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="kpi-grid" id="kpi-grid"></div>
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title" id="dash-table-title">Últimos vehículos</span>
+            <button class="btn-g" onclick="setView('vehiculos')"><i class="ti ti-arrow-right"></i>Ver todos</button>
+          </div>
+          <table><thead><tr>
+            <th>Matrícula</th><th>Vehículo</th><th>Estado</th><th>Días</th><th>Importe</th>
+          </tr></thead><tbody id="dash-table"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- VEHÍCULOS -->
+    <div id="view-vehiculos" style="display:none">
+      <div class="topbar">
+        <span class="topbar-title">Vehículos</span>
+        <div class="topbar-right">
+          <div class="filters" id="v-filters"></div>
+          <button class="btn-p" id="btn-add" onclick="openAdd()"><i class="ti ti-plus"></i>Añadir</button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="card">
+          <table><thead><tr>
+            <th>Matrícula</th><th>Vehículo</th><th>Estado</th><th>Días</th><th>Importe</th><th>Descripción</th><th>Acción</th>
+          </tr></thead><tbody id="v-table"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRESUPUESTOS (gestor/admin) -->
+    <div id="view-presupuestos" style="display:none">
+      <div class="topbar"><span class="topbar-title">Presupuestos pendientes de autorizar</span></div>
+      <div class="content"><div class="card" id="pres-list"></div></div>
+    </div>
+
+    <!-- RECEPCIONAR (gestor/admin) -->
+    <div id="view-recepcion" style="display:none">
+      <div class="topbar"><span class="topbar-title">Vehículos pendientes de recepción</span></div>
+      <div class="content"><div class="card" id="rec-list"></div></div>
+    </div>
+
+    <!-- ABRIR CASO (gestor/admin) -->
+    <div id="view-caso" style="display:none">
+      <div class="topbar"><span class="topbar-title">Abrir caso en taller</span></div>
+      <div class="content">
+        <div class="card" style="max-width:600px">
+          <div class="card-head"><span class="card-title">Datos del caso</span></div>
+          <div style="padding:18px;display:flex;flex-direction:column;gap:12px">
+
+            <!-- Selector de taller -->
+            <div class="field" id="nc-taller-field">
+              <label>Taller asignado *</label>
+              <select id="nc-taller-id" onchange="onCasoTallerChange()" style="font-size:13px">
+                <option value="">— Selecciona el taller —</option>
+              </select>
+              <div id="nc-taller-err" style="display:none;font-size:11px;color:#C62828;margin-top:4px">Debes seleccionar un taller</div>
+              <!-- Preview tarifas del taller -->
+              <div id="nc-tarifas-preview" style="display:none;margin-top:10px;background:var(--gbg);border:1px solid var(--gb);border-radius:8px;padding:10px 14px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                  <span style="font-size:11px;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:.05em"><i class="ti ti-currency-euro" style="font-size:12px"></i> Precios acordados con este taller</span>
+                  <button onclick="document.getElementById('nc-tarifas-list').style.display=document.getElementById('nc-tarifas-list').style.display==='none'?'block':'none'" style="background:none;border:none;font-size:11px;color:var(--green);cursor:pointer">Ver / ocultar</button>
+                </div>
+                <div id="nc-tarifas-list" style="display:none;max-height:150px;overflow-y:auto;display:flex;flex-direction:column;gap:4px"></div>
+              </div>
+            </div>
+            <div class="field">
+              <label>Matrícula *</label>
+              <input id="nc-mat" placeholder="1234-ABC" oninput="lookupMatricula(this.value)" style="text-transform:uppercase">
+              <div id="nc-mat-lookup" style="margin-top:6px"></div>
+            </div>
+            <div class="frow">
+              <div class="field"><label>Nombre de la avería *</label><input id="nc-averia" placeholder="Ej: Ruido en motor"></div>
+              <div class="field"><label>Kilómetros *</label><input id="nc-km" type="number" placeholder="85000" min="0"></div>
+            </div>
+            <div class="field"><label>Tipo de trabajo *</label>
+              <select id="nc-tipo" onchange="onTipo()">
+                <option value="">— Selecciona tipo —</option>
+                <option value="carroceria">Carrocería</option>
+                <option value="mecanica">Mecánica</option>
+                <option value="llaves">Llaves</option>
+                <option value="repuestos">Compra de repuestos</option>
+              </select>
+            </div>
+            <div class="field" id="nc-sub-wrap" style="display:none">
+              <label id="nc-sub-label">Subtipo</label>
+              <select id="nc-subtipo"><option value="">— Selecciona —</option></select>
+            </div>
+
+            <!-- SELECTOR RECAMBIOS (solo visible cuando tipo = repuestos) -->
+            <div id="nc-recambios-wrap" style="display:none">
+              <div style="font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">
+                Recambios necesarios *
+              </div>
+              <div style="border:1px solid var(--bd);border-radius:10px;overflow:hidden;background:var(--wh)">
+                <!-- Buscador -->
+                <div style="padding:10px 12px;border-bottom:1px solid var(--bd);display:flex;gap:8px;align-items:center">
+                  <i class="ti ti-search" style="color:var(--t2);font-size:16px;flex-shrink:0"></i>
+                  <input id="rec-search" placeholder="Buscar recambio..." oninput="filtrarRecambios()"
+                    style="border:none;outline:none;font-size:13px;width:100%;font-family:'Inter',sans-serif;background:transparent">
+                </div>
+                <!-- Categorías -->
+                <div id="rec-cats" style="display:flex;gap:0;overflow-x:auto;border-bottom:1px solid var(--bd)"></div>
+                <!-- Lista de recambios -->
+                <div id="rec-lista" style="max-height:220px;overflow-y:auto;padding:6px"></div>
+              </div>
+              <!-- Carrito seleccionados -->
+              <div id="rec-seleccionados-wrap" style="display:none;margin-top:10px">
+                <div style="font-size:11px;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">
+                  Recambios seleccionados
+                </div>
+                <div id="rec-seleccionados" style="display:flex;flex-direction:column;gap:4px"></div>
+              </div>
+            </div>
+              <div class="photo-drop" id="nc-drop" onclick="document.getElementById('nc-photos').click()">
+                <i class="ti ti-camera" style="font-size:22px;color:var(--t2)"></i>
+                <span style="font-size:13px;color:var(--t2)" id="nc-foto-hint">Clic para añadir fotos (opcional)</span>
+              </div>
+              <input type="file" id="nc-photos" accept="image/*" multiple style="display:none" onchange="handlePhotos(this,'nc-prev')">
+              <div id="nc-prev" class="photo-grid"></div>
+              <div id="nc-foto-err" style="display:none;font-size:11px;color:#C62828;margin-top:4px">Debes adjuntar al menos una foto para carrocería</div>
+            </div>
+            <div class="field"><label>Notas</label><textarea id="nc-notas" placeholder="Descripción adicional..."></textarea></div>
+            <div style="display:flex;gap:10px">
+              <button class="btn-p" onclick="abrirCaso()"><i class="ti ti-clipboard-check"></i>Abrir caso</button>
+              <button class="btn-g" onclick="resetCaso()"><i class="ti ti-refresh"></i>Limpiar</button>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="max-width:600px">
+          <div class="card-head"><span class="card-title">Casos abiertos hoy</span></div>
+          <div id="casos-lista"><div class="empty"><i class="ti ti-clipboard"></i><p>Sin casos abiertos hoy</p></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TALLERES -->
+    <div id="view-talleres" style="display:none">
+      <div class="topbar">
+        <span class="topbar-title">Talleres</span>
+        <div class="topbar-right">
+          <button class="btn-p" id="btn-add-taller" onclick="openAddTaller()" style="display:none"><i class="ti ti-plus"></i>Añadir taller</button>
+        </div>
+      </div>
+      <div class="content">
+        <!-- Para gestor: selector de taller activo -->
+        <div id="taller-selector-wrap" style="display:none">
+          <div class="card" style="max-width:600px">
+            <div class="card-head"><span class="card-title">Tu taller asignado</span></div>
+            <div style="padding:16px 18px">
+              <div class="field">
+                <label>Selecciona el taller de tu zona *</label>
+                <select id="taller-seleccionado" onchange="onTallerChange()" style="font-size:14px">
+                  <option value="">— Selecciona un taller —</option>
+                </select>
+              </div>
+              <div id="taller-info-box" style="display:none;margin-top:12px;background:var(--gbg);border:1px solid var(--gb);border-radius:10px;padding:14px 16px">
+                <div style="display:flex;align-items:flex-start;gap:14px">
+                  <div style="width:40px;height:40px;background:var(--green);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                    <i class="ti ti-building" style="color:#fff;font-size:20px"></i>
+                  </div>
+                  <div style="flex:1">
+                    <div style="font-size:14px;font-weight:600;color:var(--text)" id="ti-nombre"></div>
+                    <div style="font-size:12px;color:var(--t2);margin-top:3px"><i class="ti ti-map-pin" style="font-size:12px"></i> <span id="ti-ciudad"></span> · <span id="ti-provincia"></span></div>
+                    <div style="font-size:12px;color:var(--t2);margin-top:2px"><i class="ti ti-phone" style="font-size:12px"></i> <span id="ti-tel"></span></div>
+                    <div style="font-size:12px;color:var(--t2);margin-top:2px"><i class="ti ti-mail" style="font-size:12px"></i> <span id="ti-email"></span></div>
+                    <div style="font-size:12px;margin-top:6px;display:flex;gap:6px;flex-wrap:wrap" id="ti-espec"></div>
+                  </div>
+                </div>
+              </div>
+              <p style="font-size:12px;color:var(--t2);margin-top:10px">El taller seleccionado recibirá las notificaciones de los casos que abras.</p>
+            </div>
+          </div>
+        </div>
+        <!-- Lista de talleres (admin) -->
+        <div id="talleres-grid"></div>
+      </div>
+    </div>
+
+    <!-- INFORMES -->
+    <div id="view-informes" style="display:none">
+      <div class="topbar">
+        <span class="topbar-title">Informes de reparaciones</span>
+        <div class="topbar-right">
+          <button class="btn-g" onclick="exportarInforme()"><i class="ti ti-printer"></i>Imprimir / PDF</button>
+          <button class="btn-g" onclick="exportarCSV()"><i class="ti ti-table-export"></i>Exportar CSV</button>
+        </div>
+      </div>
+      <div class="content">
+        <!-- Filtros -->
+        <div class="card" style="padding:16px 18px">
+          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
+            <div>
+              <div style="font-size:10px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Período</div>
+              <div style="display:flex;gap:6px">
+                <button class="fbtn active" id="inf-period-semana" onclick="setInfPeriod('semana')">Esta semana</button>
+                <button class="fbtn" id="inf-period-mes" onclick="setInfPeriod('mes')">Este mes</button>
+                <button class="fbtn" id="inf-period-custom" onclick="setInfPeriod('custom')">Personalizado</button>
+              </div>
+            </div>
+            <div id="inf-custom-dates" style="display:none;display:flex;gap:8px;align-items:center">
+              <div>
+                <div style="font-size:10px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Desde</div>
+                <input type="date" id="inf-desde" onchange="renderInformes()" style="padding:6px 10px;font-size:12px;border:1px solid var(--bd);border-radius:8px;font-family:'Inter',sans-serif;outline:none">
+              </div>
+              <div>
+                <div style="font-size:10px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Hasta</div>
+                <input type="date" id="inf-hasta" onchange="renderInformes()" style="padding:6px 10px;font-size:12px;border:1px solid var(--bd);border-radius:8px;font-family:'Inter',sans-serif;outline:none">
+              </div>
+            </div>
+            <div id="inf-delegacion-wrap">
+              <div style="font-size:10px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Delegación / Taller</div>
+              <select id="inf-taller-filter" onchange="renderInformes()" style="padding:6px 10px;font-size:12px;border:1px solid var(--bd);border-radius:8px;font-family:'Inter',sans-serif;outline:none;background:var(--wh);min-width:200px">
+                <option value="">Todos los talleres</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- KPIs resumen -->
+        <div class="kpi-grid" id="inf-kpis"></div>
+
+        <!-- Gráfico de barras (SVG) -->
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">Reparaciones por taller</span>
+            <span id="inf-period-label" style="font-size:12px;color:var(--t2)"></span>
+          </div>
+          <div style="padding:16px 20px" id="inf-chart-wrap">
+            <div id="inf-chart"></div>
+          </div>
+        </div>
+
+        <!-- Tabla detallada -->
+        <div class="card" id="inf-tabla-wrap">
+          <div class="card-head">
+            <span class="card-title">Detalle de reparaciones</span>
+            <span id="inf-total-badge" style="font-size:12px;color:var(--t2)"></span>
+          </div>
+          <table>
+            <thead><tr>
+              <th>Matrícula</th><th>Vehículo</th><th>Taller</th><th>Tipo</th><th>Descripción</th><th>Días</th><th>Importe</th><th>Estado</th>
+            </tr></thead>
+            <tbody id="inf-tabla"></tbody>
+          </table>
+        </div>
+
+        <!-- Resumen por taller -->
+        <div class="card" id="inf-resumen-wrap">
+          <div class="card-head"><span class="card-title">Resumen por taller</span></div>
+          <table>
+            <thead><tr>
+              <th>Taller</th><th>Ciudad</th><th>Reparaciones</th><th>Días medios</th><th>Importe total</th><th>Importe medio</th>
+            </tr></thead>
+            <tbody id="inf-resumen"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- BASE DE VEHÍCULOS -->
+    <div id="view-baseveh" style="display:none">
+      <div class="topbar">
+        <span class="topbar-title">Base de vehículos corporativa</span>
+        <div class="topbar-right">
+          <button class="btn-g" onclick="document.getElementById('csv-upload').click()"><i class="ti ti-upload"></i>Importar CSV / Excel</button>
+          <button class="btn-g" onclick="descargarPlantilla()"><i class="ti ti-download"></i>Descargar plantilla</button>
+          <input type="file" id="csv-upload" accept=".csv,.xlsx,.xls" style="display:none" onchange="importarCSV(this)">
+        </div>
+      </div>
+      <div class="content">
+
+        <!-- API Config (admin) -->
+        <div class="card" style="max-width:700px">
+          <div class="card-head">
+            <span class="card-title"><i class="ti ti-plug" style="font-size:14px;margin-right:4px"></i>Conexión con sistema corporativo</span>
+            <span id="api-status-badge" class="badge b-pte-pre">Sin configurar</span>
+          </div>
+          <div style="padding:16px 18px;display:flex;flex-direction:column;gap:12px">
+            <div style="display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end">
+              <div class="field" style="margin:0">
+                <label>URL del endpoint API corporativo</label>
+                <input id="api-url" placeholder="https://tuempresa.com/api/vehiculos?matricula={matricula}" style="font-family:monospace;font-size:12px">
+              </div>
+              <button class="btn-p" onclick="testAPI()" style="white-space:nowrap"><i class="ti ti-plug"></i>Probar conexión</button>
+            </div>
+            <div id="api-help" style="background:var(--gbg);border:1px solid var(--gb);border-radius:8px;padding:12px 14px;font-size:12px;color:var(--t2);line-height:1.7">
+              <strong style="color:var(--green)">¿Cómo funciona?</strong> FleetOS llamará a esa URL reemplazando <code style="background:#fff;padding:1px 5px;border-radius:4px;font-size:11px">{matricula}</code> por la matrícula que escriba el gestor. La respuesta debe ser un JSON con al menos: <code style="background:#fff;padding:1px 5px;border-radius:4px;font-size:11px">{"marca":"Toyota","modelo":"Corolla","km":85000}</code>.<br>
+              Si tu sistema no tiene API, usa la importación manual CSV para cargar la base de datos.
+            </div>
+          </div>
+        </div>
+
+        <!-- Estadísticas base -->
+        <div class="kpi-grid" id="baseveh-kpis" style="grid-template-columns:repeat(3,1fr)"></div>
+
+        <!-- Búsqueda manual -->
+        <div class="card" style="max-width:700px">
+          <div class="card-head"><span class="card-title">Buscar vehículo en la base</span></div>
+          <div style="padding:14px 18px;display:flex;gap:10px">
+            <input id="baseveh-search" placeholder="Buscar por matrícula, marca o modelo..." oninput="filtrarBaseVeh()"
+              style="flex:1;padding:8px 12px;font-size:13px;border:1px solid var(--bd);border-radius:8px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s"
+              onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--bd)'">
+          </div>
+          <div id="baseveh-resultados" style="max-height:280px;overflow-y:auto">
+            <table><thead><tr>
+              <th>Matrícula</th><th>Marca</th><th>Modelo</th><th>Año</th><th>KM</th><th>Propietario / Delegación</th><th>Última actualización</th>
+            </tr></thead><tbody id="baseveh-table"></tbody></table>
+          </div>
+        </div>
+
+        <!-- Log de importaciones -->
+        <div class="card" style="max-width:700px">
+          <div class="card-head"><span class="card-title">Historial de importaciones</span></div>
+          <div id="import-log" style="padding:12px 18px">
+            <div class="empty"><i class="ti ti-history"></i><p>Aún no se han realizado importaciones</p></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══ TALLER CLIENTES: CLIENTES ══ -->
+    <div id="view-tc-clientes" style="display:none">
+      <div class="topbar">
+        <span class="topbar-title">Clientes</span>
+        <div class="topbar-right">
+          <button class="btn-p" onclick="openM('m-tc-cliente')"><i class="ti ti-plus"></i>Nuevo cliente</button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">Clientes registrados</span>
+            <input id="tc-search-cli" placeholder="Buscar..." oninput="filtrarClientes()"
+              style="padding:6px 12px;font-size:12px;border:1px solid var(--bd);border-radius:8px;font-family:'Inter',sans-serif;outline:none;width:220px">
+          </div>
+          <table><thead><tr>
+            <th>Nombre</th><th>Teléfono</th><th>Email</th><th>Vehículos</th><th>Casos abiertos</th><th>Acción</th>
+          </tr></thead><tbody id="tc-clientes-table"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ TALLER CLIENTES: CASOS ══ -->
+    <div id="view-tc-casos" style="display:none">
+      <div class="topbar">
+        <span class="topbar-title">Casos de taller</span>
+        <div class="topbar-right">
+          <div class="filters" id="tc-casos-filters"></div>
+          <button class="btn-p" onclick="setView('tc-nuevo')"><i class="ti ti-plus"></i>Nuevo caso</button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="kpi-grid" id="tc-kpis"></div>
+        <div class="card">
+          <table><thead><tr>
+            <th>Cliente</th><th>Vehículo</th><th>Daño</th><th>Estado</th><th>Presupuesto</th><th>Acción</th>
+          </tr></thead><tbody id="tc-casos-table"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ TALLER CLIENTES: NUEVO CASO ══ -->
+    <div id="view-tc-nuevo" style="display:none">
+      <div class="topbar"><span class="topbar-title">Abrir nuevo caso</span></div>
+      <div class="content">
+        <div class="card" style="max-width:620px">
+          <div class="card-head"><span class="card-title">Datos del caso</span></div>
+          <div style="padding:18px;display:flex;flex-direction:column;gap:12px">
+
+            <div class="field">
+              <label>Cliente *</label>
+              <select id="tc-cli-sel" onchange="onTcClienteChange()" style="font-size:13px">
+                <option value="">— Selecciona cliente o crea uno nuevo —</option>
+              </select>
+              <button class="btn-g" style="margin-top:6px;font-size:12px" onclick="openM('m-tc-cliente')">
+                <i class="ti ti-plus"></i>Crear cliente nuevo
+              </button>
+            </div>
+
+            <div class="frow">
+              <div class="field">
+                <label>Matrícula *</label>
+                <input id="tc-mat" placeholder="1234-ABC" oninput="this.value=this.value.toUpperCase();tcLookupMat(this.value)">
+                <div id="tc-mat-found" style="display:none;margin-top:6px" class="veh-found-box">
+                  <div class="veh-found-icon"><i class="ti ti-check" style="color:#fff"></i></div>
+                  <div><div class="veh-found-data" id="tc-mat-data"></div><div class="veh-found-sub" id="tc-mat-sub"></div></div>
+                </div>
+              </div>
+              <div class="field">
+                <label>Año</label>
+                <input id="tc-ano" type="number" placeholder="2021">
+              </div>
+            </div>
+
+            <div class="frow">
+              <div class="field"><label>Marca *</label><input id="tc-marca" placeholder="Toyota"></div>
+              <div class="field"><label>Modelo *</label><input id="tc-modelo" placeholder="Corolla"></div>
+            </div>
+
+            <div class="field">
+              <label>Kilómetros</label>
+              <input id="tc-km" type="number" placeholder="85000">
+            </div>
+
+            <div class="field">
+              <label>Descripción del daño / avería *</label>
+              <textarea id="tc-dano" placeholder="Describe el problema o daño que presenta el vehículo..." style="min-height:80px"></textarea>
+            </div>
+
+            <div class="field">
+              <label>Fotos del daño</label>
+              <div class="photo-drop" onclick="document.getElementById('tc-photos').click()">
+                <i class="ti ti-camera" style="font-size:20px;color:var(--t2)"></i>
+                <span style="font-size:13px;color:var(--t2)">Clic para añadir fotos (opcional)</span>
+              </div>
+              <input type="file" id="tc-photos" accept="image/*" multiple style="display:none" onchange="handlePhotos(this,'tc-photos-prev')">
+              <div id="tc-photos-prev" class="photo-grid"></div>
+            </div>
+
+            <div style="display:flex;gap:10px">
+              <button class="btn-p" onclick="abrirCasoTaller()"><i class="ti ti-clipboard-check"></i>Abrir caso</button>
+              <button class="btn-g" onclick="resetTcNuevo()"><i class="ti ti-refresh"></i>Limpiar</button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ MODAL: NUEVO CLIENTE (taller) ══ -->
+<div class="modal-bg" id="m-tc-cliente">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-hd"><h3>Nuevo cliente</h3><button class="btn-g" style="padding:5px 8px" onclick="closeM('m-tc-cliente')"><i class="ti ti-x"></i></button></div>
+    <div class="modal-bd">
+      <div class="frow">
+        <div class="field"><label>Nombre *</label><input id="tc-cli-nombre" placeholder="Carlos García"></div>
+        <div class="field"><label>Apellidos</label><input id="tc-cli-apellidos" placeholder="López"></div>
+      </div>
+      <div class="field"><label>Teléfono *</label><input id="tc-cli-tel" type="tel" placeholder="+34 600 000 000"></div>
+      <div class="field"><label>Email *</label><input id="tc-cli-email" type="email" placeholder="carlos@email.com"></div>
+      <div class="field"><label>DNI / NIF</label><input id="tc-cli-dni" placeholder="12345678A"></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn-g" onclick="closeM('m-tc-cliente')">Cancelar</button>
+      <button class="btn-p" onclick="saveCliente()"><i class="ti ti-check"></i>Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: PRESUPUESTO CLIENTE ══ -->
+<div class="modal-bg" id="m-tc-presupuesto">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-hd"><h3>Enviar presupuesto al cliente</h3><button class="btn-g" style="padding:5px 8px" onclick="closeM('m-tc-presupuesto')"><i class="ti ti-x"></i></button></div>
+    <div class="modal-bd">
+      <div style="background:var(--gbg);border:1px solid var(--gb);border-radius:10px;padding:12px 14px;margin-bottom:14px">
+        <div style="font-size:13px;font-weight:600" id="tc-pres-cliente"></div>
+        <div style="font-size:12px;color:var(--t2);margin-top:3px" id="tc-pres-vehiculo"></div>
+      </div>
+      <div class="field"><label>Importe total (€) *</label><input id="tc-pres-importe" type="number" placeholder="0.00" min="0" step="0.01"></div>
+      <div class="field">
+        <label>Archivo PDF *</label>
+        <div class="photo-drop" onclick="document.getElementById('tc-pres-file').click()">
+          <i class="ti ti-file-invoice" style="font-size:22px;color:var(--t2)"></i>
+          <span style="font-size:13px;color:var(--t2)" id="tc-pres-fname">Clic para seleccionar PDF</span>
+        </div>
+        <input type="file" id="tc-pres-file" accept=".pdf" style="display:none" onchange="document.getElementById('tc-pres-fname').textContent=this.files[0]?.name||'Clic para seleccionar PDF'">
+      </div>
+      <div class="field">
+        <label>Enviar por</label>
+        <div style="display:flex;gap:14px;margin-top:6px">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" id="tc-send-email" checked style="accent-color:var(--green)"> Email</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" id="tc-send-wa" style="accent-color:var(--green)"> WhatsApp</label>
+        </div>
+      </div>
+      <div class="field"><label>Mensaje al cliente (opcional)</label>
+        <textarea id="tc-pres-msg" style="min-height:68px" placeholder="Adjuntamos presupuesto para la reparación de su vehículo. Confirme si desea proceder."></textarea>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn-g" onclick="closeM('m-tc-presupuesto')">Cancelar</button>
+      <button class="btn-p" onclick="enviarPresupuestoCliente()"><i class="ti ti-send"></i>Enviar al cliente</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: FACTURA CLIENTE ══ -->
+<div class="modal-bg" id="m-tc-factura">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-hd"><h3>Enviar factura al cliente</h3><button class="btn-g" style="padding:5px 8px" onclick="closeM('m-tc-factura')"><i class="ti ti-x"></i></button></div>
+    <div class="modal-bd">
+      <div style="background:var(--gbg);border:1px solid var(--gb);border-radius:10px;padding:12px 14px;margin-bottom:14px">
+        <div style="font-size:13px;font-weight:600" id="tc-fact-cliente"></div>
+        <div style="font-size:12px;color:var(--t2);margin-top:3px" id="tc-fact-vehiculo"></div>
+      </div>
+      <div class="field"><label>Número de factura *</label><input id="tc-fact-num" placeholder="FAC-2025-0001"></div>
+      <div class="field"><label>Importe final (€) *</label><input id="tc-fact-importe" type="number" placeholder="0.00" min="0" step="0.01"></div>
+      <div class="field">
+        <label>Archivo PDF *</label>
+        <div class="photo-drop" onclick="document.getElementById('tc-fact-file').click()">
+          <i class="ti ti-file-invoice" style="font-size:22px;color:var(--t2)"></i>
+          <span style="font-size:13px;color:var(--t2)" id="tc-fact-fname">Clic para seleccionar PDF</span>
+        </div>
+        <input type="file" id="tc-fact-file" accept=".pdf" style="display:none" onchange="document.getElementById('tc-fact-fname').textContent=this.files[0]?.name||'Clic para seleccionar PDF'">
+      </div>
+      <div class="field">
+        <label>Enviar por</label>
+        <div style="display:flex;gap:14px;margin-top:6px">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" id="tc-fact-email" checked style="accent-color:var(--green)"> Email</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" id="tc-fact-wa" style="accent-color:var(--green)"> WhatsApp</label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn-g" onclick="closeM('m-tc-factura')">Cancelar</button>
+      <button class="btn-p" onclick="enviarFacturaCliente()"><i class="ti ti-send"></i>Enviar al cliente</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="m-vehiculo">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-hd"><h3 id="m-v-title">Añadir vehículo</h3><button class="btn-g" style="padding:5px 8px" onclick="closeM('m-vehiculo')"><i class="ti ti-x"></i></button></div>
+    <div class="modal-bd">
+      <div class="frow">
+        <div class="field"><label>Matrícula *</label><input id="fv-mat" placeholder="1234-ABC"></div>
+        <div class="field"><label>Año</label><input id="fv-ano" type="number" placeholder="2022"></div>
+      </div>
+      <div class="frow">
+        <div class="field"><label>Marca *</label><input id="fv-marca" placeholder="Toyota"></div>
+        <div class="field"><label>Modelo</label><input id="fv-modelo" placeholder="Corolla"></div>
+      </div>
+      <div class="frow">
+        <div class="field"><label>Estado</label>
+          <select id="fv-estado">
+            <option value="pte-presupuesto">Pte. presupuesto</option>
+            <option value="pte-autorizar">Pte. autorizar</option>
+            <option value="aut">Autorizado</option>
+            <option value="pte-recepcion">Pte. recepción</option>
+            <option value="rep">Recepcionado</option>
+            <option value="pte-factura">Pte. factura</option>
+          </select>
+        </div>
+        <div class="field"><label>Días en taller</label><input id="fv-dias" type="number" placeholder="0" min="0"></div>
+      </div>
+      <div class="field"><label>Descripción</label><textarea id="fv-desc" placeholder="Trabajo a realizar..."></textarea></div>
+      <div class="field">
+        <label>Fotos</label>
+        <div class="photo-drop" onclick="document.getElementById('fv-photos').click()">
+          <i class="ti ti-camera" style="font-size:20px;color:var(--t2)"></i>
+          <span style="font-size:12px;color:var(--t2)">Clic para añadir fotos</span>
+        </div>
+        <input type="file" id="fv-photos" accept="image/*" multiple style="display:none" onchange="handlePhotos(this,'fv-prev')">
+        <div id="fv-prev" class="photo-grid"></div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn-g" onclick="closeM('m-vehiculo')">Cancelar</button>
+      <button class="btn-p" onclick="saveVehiculo()"><i class="ti ti-check"></i>Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: FOTOS GESTOR ══ -->
+<div class="modal-bg" id="m-fotos">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-hd"><h3>Añadir fotos</h3><button class="btn-g" style="padding:5px 8px" onclick="closeM('m-fotos')"><i class="ti ti-x"></i></button></div>
+    <div class="modal-bd">
+      <p style="font-size:13px;color:var(--t2);margin-bottom:14px">Vehículo: <strong id="m-fotos-mat"></strong></p>
+      <div class="photo-drop" onclick="document.getElementById('gf-photos').click()">
+        <i class="ti ti-camera" style="font-size:22px;color:var(--t2)"></i>
+        <span style="font-size:13px;color:var(--t2)">Clic para añadir fotos</span>
+      </div>
+      <input type="file" id="gf-photos" accept="image/*" multiple style="display:none" onchange="handlePhotos(this,'gf-prev')">
+      <div id="gf-prev" class="photo-grid" style="margin-top:8px"></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn-g" onclick="closeM('m-fotos')">Cancelar</button>
+      <button class="btn-p" onclick="saveGFotos()"><i class="ti ti-check"></i>Guardar fotos</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: PRESUPUESTO TALLER ══ -->
+<div class="modal-bg" id="m-presupuesto">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-hd"><h3>Subir presupuesto</h3><button class="btn-g" style="padding:5px 8px" onclick="closeM('m-presupuesto')"><i class="ti ti-x"></i></button></div>
+    <div class="modal-bd">
+      <p style="font-size:13px;color:var(--t2);margin-bottom:14px">Vehículo: <strong id="mp-mat"></strong></p>
+      <div class="pl-hdr">
+        <span>Descripción del trabajo</span><span>Tipo</span><span>Precio (€)</span><span>Dto. (%)</span><span></span>
+      </div>
+      <div class="pres-lineas" id="pres-lineas"></div>
+      <button class="btn-g" onclick="addLinea()" style="margin-bottom:12px"><i class="ti ti-plus"></i>Añadir línea</button>
+      <div class="total-row">
+        <span class="total-lbl">Total presupuesto:</span>
+        <span class="total-val" id="pres-total">0,00 €</span>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn-g" onclick="closeM('m-presupuesto')">Cancelar</button>
+      <button class="btn-p" id="btn-send-pres" onclick="savePresupuesto()"><i class="ti ti-send"></i>Enviar al gestor</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: FACTURA TALLER ══ -->
+<div class="modal-bg" id="m-factura">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-hd"><h3>Subir factura</h3><button class="btn-g" style="padding:5px 8px" onclick="closeM('m-factura')"><i class="ti ti-x"></i></button></div>
+    <div class="modal-bd">
+      <p style="font-size:13px;color:var(--t2);margin-bottom:14px">Vehículo: <strong id="mf-mat"></strong></p>
+      <div class="field"><label>Número de factura *</label><input id="ff-num" placeholder="FAC-2025-0042"></div>
+      <div class="field"><label>Importe final (€) *</label><input id="ff-importe" type="number" placeholder="0" min="0"></div>
+      <div class="field">
+        <label>Archivo PDF (opcional)</label>
+        <div class="photo-drop" onclick="document.getElementById('ff-file').click()" style="padding:14px">
+          <i class="ti ti-file-invoice" style="font-size:20px;color:var(--t2)"></i>
+          <span id="ff-fname" style="font-size:13px;color:var(--t2)">Ningún archivo seleccionado</span>
+        </div>
+        <input type="file" id="ff-file" accept=".pdf,.jpg,.png" style="display:none"
+          onchange="document.getElementById('ff-fname').textContent=this.files[0]?.name||'Ningún archivo seleccionado'">
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn-g" onclick="closeM('m-factura')">Cancelar</button>
+      <button class="btn-p" id="btn-send-fact" onclick="saveFactura()"><i class="ti ti-check"></i>Confirmar factura</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: EDITAR ESTADO (admin/gestor) ══ -->
+<div class="modal-bg" id="m-estado">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-hd"><h3>Editar vehículo</h3><button class="btn-g" style="padding:5px 8px" onclick="closeM('m-estado')"><i class="ti ti-x"></i></button></div>
+    <div class="modal-bd">
+      <p style="font-size:13px;color:var(--t2);margin-bottom:14px">Vehículo: <strong id="me-mat"></strong></p>
+      <div class="field"><label>Estado</label>
+        <select id="fe-estado">
+          <option value="pte-presupuesto">Pte. presupuesto</option>
+          <option value="pte-autorizar">Pte. autorizar</option>
+          <option value="aut">Autorizado</option>
+          <option value="pte-recepcion">Pte. recepción</option>
+          <option value="rep">Recepcionado</option>
+          <option value="pte-factura">Pte. factura</option>
+        </select>
+      </div>
+      <div class="field"><label>Notas</label><textarea id="fe-desc" placeholder="Observaciones..."></textarea></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn-g" onclick="closeM('m-estado')">Cancelar</button>
+      <button class="btn-p" onclick="saveEstado()"><i class="ti ti-check"></i>Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: AÑADIR/EDITAR TALLER ══ -->
+<div class="modal-bg" id="m-taller">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-hd">
+      <h3 id="m-t-title">Añadir taller</h3>
+      <button class="btn-g" style="padding:5px 8px" onclick="closeM('m-taller')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-bd">
+      <div class="frow">
+        <div class="field"><label>Nombre del taller *</label><input id="ft-nombre" placeholder="Taller García"></div>
+        <div class="field"><label>Teléfono</label><input id="ft-tel" placeholder="+34 944 000 000"></div>
+      </div>
+      <div class="frow">
+        <div class="field"><label>Ciudad *</label><input id="ft-ciudad" placeholder="Bilbao"></div>
+        <div class="field"><label>Provincia *</label><input id="ft-prov" placeholder="Vizcaya"></div>
+      </div>
+      <div class="field"><label>Dirección</label><input id="ft-dir" placeholder="Calle Mayor 12, Local 3"></div>
+      <div class="field"><label>Email de contacto *</label><input id="ft-email" type="email" placeholder="taller@email.com"></div>
+      <div class="field">
+        <label>Especialidades</label>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px" id="ft-espec-list"></div>
+      </div>
+      <div class="field"><label>Notas</label><textarea id="ft-notas" placeholder="Horario, condiciones especiales..."></textarea></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn-g" onclick="closeM('m-taller')">Cancelar</button>
+      <button class="btn-p" onclick="saveTaller()"><i class="ti ti-check"></i>Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: TARIFAS ACORDADAS ══ -->
+<div class="modal-bg" id="m-tarifas">
+  <div class="modal" style="max-width:620px">
+    <div class="modal-hd">
+      <div>
+        <h3 id="m-tar-title">Tarifas acordadas</h3>
+        <div style="font-size:11px;color:var(--t2);margin-top:2px" id="m-tar-sub"></div>
+      </div>
+      <button class="btn-g" style="padding:5px 8px" onclick="closeM('m-tarifas')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-bd">
+      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+        <select id="tar-cat-filter" onchange="renderTarifasModal()" style="padding:6px 10px;font-size:12px;border:1px solid var(--bd);border-radius:8px;font-family:'Inter',sans-serif;outline:none;background:var(--wh)">
+          <option value="">Todas las categorías</option>
+          <option value="Mano de obra">Mano de obra</option>
+          <option value="Motor">Motor</option>
+          <option value="Frenos">Frenos</option>
+          <option value="Suspensión">Suspensión</option>
+          <option value="Carrocería">Carrocería</option>
+          <option value="Eléctrico">Eléctrico</option>
+          <option value="Climatización">Climatización</option>
+          <option value="Neumáticos">Neumáticos</option>
+          <option value="Transmisión">Transmisión</option>
+          <option value="Otros">Otros</option>
+        </select>
+        <input id="tar-search" placeholder="Buscar concepto..." oninput="renderTarifasModal()"
+          style="flex:1;padding:6px 10px;font-size:12px;border:1px solid var(--bd);border-radius:8px;font-family:'Inter',sans-serif;outline:none">
+      </div>
+      <!-- Cabecera tabla -->
+      <div style="display:grid;grid-template-columns:1fr 120px 90px 60px;gap:8px;padding:6px 10px;font-size:10px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--bd)">
+        <span>Descripción / Concepto</span><span>Categoría</span><span>Precio (€)</span><span></span>
+      </div>
+      <div id="tar-lineas" style="max-height:300px;overflow-y:auto"></div>
+      <!-- Nueva línea -->
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--bd)">
+        <div style="font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Añadir nueva tarifa</div>
+        <div style="display:grid;grid-template-columns:1fr 120px 90px auto;gap:8px;align-items:center">
+          <input id="tar-new-desc" placeholder="Ej: Cambio de pastillas delanteras" style="padding:7px 10px;font-size:12px;border:1px solid var(--bd);border-radius:8px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s" onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--bd)'">
+          <select id="tar-new-cat" style="padding:7px 10px;font-size:12px;border:1px solid var(--bd);border-radius:8px;font-family:'Inter',sans-serif;outline:none;background:var(--wh)">
+            <option value="Mano de obra">Mano de obra</option>
+            <option value="Motor">Motor</option>
+            <option value="Frenos">Frenos</option>
+            <option value="Suspensión">Suspensión</option>
+            <option value="Carrocería">Carrocería</option>
+            <option value="Eléctrico">Eléctrico</option>
+            <option value="Climatización">Climatización</option>
+            <option value="Neumáticos">Neumáticos</option>
+            <option value="Transmisión">Transmisión</option>
+            <option value="Otros">Otros</option>
+          </select>
+          <input id="tar-new-precio" type="number" placeholder="0,00" min="0" step="0.01" style="padding:7px 10px;font-size:12px;border:1px solid var(--bd);border-radius:8px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s" onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--bd)'">
+          <button class="btn-p" onclick="addTarifa()" style="padding:7px 14px;white-space:nowrap"><i class="ti ti-plus"></i>Añadir</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn-g" onclick="closeM('m-tarifas')">Cerrar</button>
+      <button class="btn-p" onclick="closeM('m-tarifas');toast('Tarifas guardadas ✓')"><i class="ti ti-check"></i>Guardar y cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  EMAILJS CONFIG
+//  Pon aquí el ID de la nueva plantilla cuando lo tengas
+// ══════════════════════════════════════════════════════
+const EJS_PUBLIC_KEY  = 'pjgc_nqtTxhgsJj1H';
+const EJS_SERVICE_ID  = 'service_oj5doql';
+const EJS_TPL_NOTIF   = 'PENDIENTE';   // ← sustituye por el ID de template_notif_flota
+emailjs.init({ publicKey: EJS_PUBLIC_KEY });
+
+// ══════════════════════════════════════════════════════
+//  ESTADOS
+// ══════════════════════════════════════════════════════
+const ESTADOS = {
+  'pte-presupuesto': {label:'Pte. presupuesto',  cls:'b-pte-pre'},
+  'pte-autorizar':   {label:'Pte. autorizar',    cls:'b-pte-aut'},
+  'aut':             {label:'Autorizado',         cls:'b-aut'},
+  'pte-recepcion':   {label:'Pte. recepción',    cls:'b-pte-rec'},
+  'rep':             {label:'Recepcionado',       cls:'b-rep'},
+  'pte-factura':     {label:'Pte. factura',       cls:'b-pte-fac'},
+};
+const E_KEYS = Object.keys(ESTADOS);
+
+const SUBTIPOS = {
+  carroceria:{label:'Especialidad carrocería',opts:['Reparaciones carrocería','Lunas / Cristales']},
+  mecanica:  {label:'Especialidad mecánica',  opts:['Revisiones','Neumáticos','Reparaciones campa']},
+};
+
+// ══════════════════════════════════════════════════════
+//  ESTADO GLOBAL
+// ══════════════════════════════════════════════════════
+let role=null, userEmail='', editIdx=-1, filterE='todos', pendingPhotos={}, casos=[], lineas=[];
+
+// Emails por rol — se van guardando al loguearse
+const roleEmails = {admin:'', gestor:'', taller:''};
+
+let veh = [
+  {mat:'1234-ABC',marca:'Volkswagen',modelo:'Golf',    ano:2020,estado:'pte-autorizar', pres:1240,dias:6, desc:'Cambio de embrague',   fotos:[],factura:null,lineas:[],abiertoPor:'gestor'},
+  {mat:'5678-DEF',marca:'Seat',      modelo:'Ibiza',  ano:2019,estado:'aut',            pres:580, dias:3, desc:'Revisión 60.000 km',   fotos:[],factura:null,lineas:[],abiertoPor:'gestor'},
+  {mat:'9012-GHI',marca:'Toyota',    modelo:'Corolla',ano:2021,estado:'pte-factura',    pres:3100,dias:11,desc:'Golpe lateral',        fotos:[],factura:null,lineas:[],abiertoPor:'gestor'},
+  {mat:'3456-JKL',marca:'BMW',       modelo:'Serie 3',ano:2022,estado:'pte-recepcion',  pres:2200,dias:2, desc:'Frenos y pastillas',   fotos:[],factura:null,lineas:[],abiertoPor:'gestor'},
+  {mat:'7890-MNO',marca:'Renault',   modelo:'Megane', ano:2018,estado:'pte-presupuesto',pres:0,   dias:1, desc:'Pendiente diagnóstico',fotos:[],factura:null,lineas:[],abiertoPor:'gestor'},
+];
+
+function sb(e){const s=ESTADOS[e]||{label:e,cls:''};return '<span class="badge '+s.cls+'">'+s.label+'</span>'}
+
+// ══════════════════════════════════════════════════════
+//  LOGIN
+// ══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+//  USUARIOS Y CREDENCIALES
+// ══════════════════════════════════════════════════════
+const USUARIOS = [
+  {
+    email: 'admin@fleetos.es',
+    pass: 'Admin2025',
+    role: 'admin',
+    nombre: 'Administrador',
+    icon: '🛡️',
+    color: '#4527A0',
+    bg: '#EDE7F6',
+  },
+  {
+    email: 'gestor@fleetos.es',
+    pass: 'Gestor2025',
+    role: 'gestor',
+    nombre: 'Gestor de flota',
+    icon: '🚗',
+    color: 'var(--green)',
+    bg: 'var(--gbg)',
+  },
+  {
+    email: 'taller@fleetos.es',
+    pass: 'Taller2025',
+    role: 'taller',
+    nombre: 'Taller — Flotas',
+    icon: '🔧',
+    color: '#E65100',
+    bg: '#FFF3E0',
+  },
+  {
+    email: 'talleres@fleetos.es',
+    pass: 'Talleres2025',
+    role: 'taller-cliente',
+    nombre: 'Taller — Clientes',
+    icon: '🏪',
+    color: '#283593',
+    bg: '#E8EAF6',
+  },
+];
+
+// Render demo users panel
+function renderDemoUsers(){
+  const el=document.getElementById('demo-users');
+  if(!el) return;
+  el.innerHTML=USUARIOS.map(u=>`
+    <div onclick="rellenarCredenciales('${u.email}','${u.pass}')"
+      style="display:flex;align-items:center;gap:10px;padding:7px 10px;background:var(--wh);border:1px solid var(--bd);border-radius:8px;cursor:pointer;transition:all .15s"
+      onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--bd)'">
+      <div style="width:30px;height:30px;background:${u.bg};border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">${u.icon}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:600;color:var(--text)">${u.nombre}</div>
+        <div style="font-size:10px;color:var(--t2);font-family:monospace">${u.email}</div>
+      </div>
+      <div style="font-size:10px;color:var(--t2);font-family:monospace;font-weight:600">${u.pass}</div>
+    </div>`).join('');
+}
+
+function rellenarCredenciales(email, pass){
+  document.getElementById('login-email').value=email;
+  document.getElementById('login-pass').value=pass;
+  document.getElementById('login-email').style.borderColor='var(--green)';
+  document.getElementById('login-pass').style.borderColor='var(--green)';
+}
+
+function togglePassVis(){
+  const input=document.getElementById('login-pass');
+  const eye=document.getElementById('pass-eye');
+  if(input.type==='password'){
+    input.type='text';
+    eye.className='ti ti-eye-off';
+  } else {
+    input.type='password';
+    eye.className='ti ti-eye';
+  }
+}
+
+function doLoginCredentials(){
+  const email=document.getElementById('login-email').value.trim().toLowerCase();
+  const pass=document.getElementById('login-pass').value;
+  const errBox=document.getElementById('login-error');
+  const errMsg=document.getElementById('login-error-msg');
+
+  if(!email){errMsg.textContent='Introduce tu usuario';errBox.style.display='flex';return}
+  if(!pass){errMsg.textContent='Introduce tu contraseña';errBox.style.display='flex';return}
+
+  const usuario=USUARIOS.find(u=>u.email===email && u.pass===pass);
+  if(!usuario){
+    errBox.style.display='flex';
+    errMsg.textContent='Usuario o contraseña incorrectos';
+    document.getElementById('login-pass').value='';
+    document.getElementById('login-pass').style.borderColor='#EF9A9A';
+    document.getElementById('login-email').style.borderColor='#EF9A9A';
+    return;
+  }
+
+  errBox.style.display='none';
+  doLogin(usuario.role, email, usuario.nombre);
+}
+
+// Mantener compatibilidad con doLogin interno
+function doLogin(r, emailOverride, nombreOverride){
+  const email = emailOverride || r;
+  if(!email){toast('Introduce un email válido ⚠️');return}
+  role = r;
+  userEmail = email;
+  roleEmails[r] = email;
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('main-app').style.display='flex';
+
+  const names={admin:'Administrador',gestor:'Gestor de flota',taller:'Taller Flotas','taller-cliente':'Taller Clientes'};
+  const cls={admin:'rb-admin',gestor:'rb-gestor',taller:'rb-taller','taller-cliente':'rb-taller'};
+  const nombre = nombreOverride || names[r] || r;
+  document.getElementById('sb-name').textContent=nombre;
+  document.getElementById('sb-badge').innerHTML=`<span class="${cls[r]||''}">${nombre}</span>`;
+  document.getElementById('sb-email').textContent=email;
+  document.getElementById('dash-date').textContent=new Date().toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+  // nav según rol
+  const isTaller    = r==='taller';
+  const isTallerCli = r==='taller-cliente';
+  const isNormal    = !isTaller && !isTallerCli;
+  const isGestor = r==='gestor'||r==='admin';
+  // Ocultar todo primero
+  ['dashboard','vehiculos','presupuestos','recepcion','caso','talleres','informes','baseveh',
+   'tc-clientes','tc-casos','tc-nuevo'].forEach(n=>{
+    const el=document.getElementById('nav-'+n);
+    if(el) el.style.display='none';
+  });
+
+  if(isTallerCli){
+    // Taller clientes: solo su módulo
+    ['tc-clientes','tc-casos','tc-nuevo'].forEach(n=>{
+      const el=document.getElementById('nav-'+n);
+      if(el) el.style.display='flex';
+    });
+    document.getElementById('btn-add').style.display='none';
+    initTallerClienteNav();
+    setViewTC('tc-casos');
+    return;
+  }
+
+  // Roles normales
+  document.getElementById('nav-dashboard').style.display='flex';
+  document.getElementById('nav-vehiculos').style.display='flex';
+  document.getElementById('nav-presupuestos').style.display = isTaller?'none':'flex';
+  document.getElementById('nav-recepcion').style.display    = isTaller?'none':'flex';
+  document.getElementById('nav-caso').style.display         = isTaller?'none':'flex';
+  document.getElementById('nav-talleres').style.display     = isTaller?'none':'flex';
+  document.getElementById('nav-informes').style.display     = isTaller?'none':'flex';
+  document.getElementById('nav-baseveh').style.display      = role==='admin'?'flex':'none';
+  document.getElementById('btn-add').style.display          = isTaller?'none':'';
+
+  setView('dashboard');
+}
+
+function logout(){
+  role=null; userEmail='';
+  document.getElementById('main-app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('login-email').value='';
+  document.getElementById('login-pass').value='';
+  document.getElementById('login-error').style.display='none';
+  document.getElementById('login-email').style.borderColor='var(--bd)';
+  document.getElementById('login-pass').style.borderColor='var(--bd)';
+  document.getElementById('login-pass').type='password';
+  document.getElementById('pass-eye').className='ti ti-eye';
+}
+
+// ══════════════════════════════════════════════════════
+//  ROUTING
+// ══════════════════════════════════════════════════════
+function setView(v){
+  ['dashboard','vehiculos','presupuestos','recepcion','caso','talleres','informes','baseveh',
+   'tc-clientes','tc-casos','tc-nuevo'].forEach(n=>{
+    const el=document.getElementById('view-'+n);
+    if(el) el.style.display=n===v?'block':'none';
+    const nav=document.getElementById('nav-'+n);
+    if(nav) nav.classList.toggle('active',n===v);
+  });
+  if(v==='dashboard'){
+    role==='taller' ? renderDashT() : renderDash();
+    const btn=document.getElementById('btn-abrir-caso-top');
+    if(btn) btn.style.display=(role==='gestor'||role==='admin')?'inline-flex':'none';
+  }
+  if(v==='vehiculos')    renderVeh();
+  if(v==='presupuestos') renderPres();
+  if(v==='recepcion')    renderRecepcion();
+  if(v==='talleres')     renderTalleres();
+  if(v==='caso')         poblarTallerSelector();
+  if(v==='informes')     renderInformes();
+  if(v==='baseveh')      renderBaseveh();
+}
+
+// ══════════════════════════════════════════════════════
+//  DASHBOARD GESTOR/ADMIN
+// ══════════════════════════════════════════════════════
+function renderDash(){
+  document.getElementById('dash-titulo').textContent='Dashboard';
+  document.getElementById('dash-table-title').textContent='Últimos vehículos';
+  const total=veh.length;
+  const enP=veh.filter(v=>!['pte-factura'].includes(v.estado)).length;
+  const pteA=veh.filter(v=>v.estado==='pte-autorizar').length;
+  const pteR=veh.filter(v=>v.estado==='pte-recepcion').length;
+  const coste=veh.reduce((a,v)=>a+v.pres,0);
+  document.getElementById('kpi-grid').innerHTML=`
+    <div class="kpi" style="border-left:3px solid var(--green)">
+      <div class="kpi-lbl"><i class="ti ti-car"></i>Total flota</div>
+      <div class="kpi-val">${total}</div><div class="kpi-sub">vehículos</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl"><i class="ti ti-receipt"></i>Pte. autorizar</div>
+      <div class="kpi-val">${pteA}</div><div class="kpi-sub kpi-up">presupuestos por revisar</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl"><i class="ti ti-clipboard-check"></i>Pte. recepción</div>
+      <div class="kpi-val">${pteR}</div><div class="kpi-sub kpi-up">vehículos por recepcionar</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl"><i class="ti ti-tool"></i>En proceso</div>
+      <div class="kpi-val">${enP}</div><div class="kpi-sub">vehículos activos</div>
+    </div>`;
+  document.getElementById('dash-table').innerHTML=
+    veh.slice(0,5).map(v=>`<tr>
+      <td><span class="mat">${v.mat}</span></td>
+      <td><span class="mat">${v.marca} ${v.modelo}</span><div class="sub">${v.ano}</div></td>
+      <td>${sb(v.estado)}</td>
+      <td class="${v.dias>7?'warn':''}">${v.dias}d</td>
+      <td>${v.pres?v.pres.toLocaleString('es-ES')+' €':'—'}</td>
+    </tr>`).join('')||`<tr><td colspan="5"><div class="empty"><i class="ti ti-car-off"></i><p>Sin vehículos</p></div></td></tr>`;
+}
+
+// ══════════════════════════════════════════════════════
+//  DASHBOARD TALLER
+// ══════════════════════════════════════════════════════
+function renderDashT(){
+  document.getElementById('dash-titulo').textContent='Mi panel — Taller';
+  document.getElementById('dash-table-title').textContent='Mis vehículos asignados';
+  const ptePre=veh.filter(v=>v.estado==='pte-presupuesto').length;
+  const pteAut=veh.filter(v=>v.estado==='pte-autorizar').length;
+  const autori=veh.filter(v=>v.estado==='aut').length;
+  const repara=veh.filter(v=>v.estado==='rep').length;
+  document.getElementById('kpi-grid').innerHTML=`
+    <div class="kpi" style="border-left:3px solid #CE93D8">
+      <div class="kpi-lbl"><i class="ti ti-file-invoice"></i>Sin presupuesto</div>
+      <div class="kpi-val">${ptePre}</div><div class="kpi-sub kpi-up">subir presupuesto</div>
+    </div>
+    <div class="kpi" style="border-left:3px solid #90CAF9">
+      <div class="kpi-lbl"><i class="ti ti-clock"></i>Pte. autorizar</div>
+      <div class="kpi-val">${pteAut}</div><div class="kpi-sub">esperando al gestor</div>
+    </div>
+    <div class="kpi" style="border-left:3px solid var(--green)">
+      <div class="kpi-lbl"><i class="ti ti-tool"></i>Autorizados</div>
+      <div class="kpi-val">${autori}</div><div class="kpi-sub kpi-dn">listos para reparar</div>
+    </div>
+    <div class="kpi" style="border-left:3px solid #9FA8DA">
+      <div class="kpi-lbl"><i class="ti ti-receipt"></i>Recepcionados</div>
+      <div class="kpi-val">${repara}</div><div class="kpi-sub kpi-dn">subir factura</div>
+    </div>`;
+  document.getElementById('dash-table').innerHTML=
+    veh.slice(0,5).map(v=>`<tr>
+      <td><span class="mat">${v.mat}</span></td>
+      <td><span class="mat">${v.marca} ${v.modelo}</span><div class="sub">${v.ano}</div></td>
+      <td>${sb(v.estado)}</td>
+      <td class="${v.dias>7?'warn':''}">${v.dias}d</td>
+      <td>${v.pres?v.pres.toLocaleString('es-ES')+' €':'—'}</td>
+    </tr>`).join('')||`<tr><td colspan="5"><div class="empty"><i class="ti ti-car-off"></i><p>Sin vehículos asignados</p></div></td></tr>`;
+}
+
+// ══════════════════════════════════════════════════════
+//  VEHÍCULOS
+// ══════════════════════════════════════════════════════
+function renderVeh(){
+  document.getElementById('v-filters').innerHTML=
+    ['todos',...E_KEYS].map(f=>`<button class="fbtn${filterE===f?' active':''}" onclick="setF('${f}')">${f==='todos'?'Todos':ESTADOS[f].label}</button>`).join('');
+  const lista=filterE==='todos'?veh:veh.filter(v=>v.estado===filterE);
+  document.getElementById('v-table').innerHTML=lista.map(v=>{
+    const i=veh.indexOf(v);
+    let acc='';
+    if(role==='gestor'){
+      acc=`<button class="btn-g" onclick="openGFotos(${i})" style="font-size:11px;padding:4px 10px"><i class="ti ti-camera"></i>Fotos</button>
+           <button class="btn-g" onclick="openEstadoModal(${i})" style="font-size:11px;padding:4px 10px;margin-left:4px"><i class="ti ti-edit"></i>Estado</button>`;
+    } else if(role==='admin'){
+      acc=`<button class="btn-g" onclick="openEdit(${i})" style="font-size:11px;padding:4px 10px"><i class="ti ti-edit"></i>Editar</button>`;
+    } else if(role==='taller'){
+      if(v.estado==='pte-presupuesto')
+        acc=`<button class="btn-blue" onclick="openPresupuesto(${i})"><i class="ti ti-upload"></i>Subir presupuesto</button>`;
+      else if(v.estado==='pte-autorizar')
+        acc=`<span style="font-size:11px;color:var(--t2);font-style:italic">Esperando autorización...</span>`;
+      else if(v.estado==='aut')
+        acc=`<button class="btn-rep" onclick="marcarReparado(${i})"><i class="ti ti-check"></i>Marcar reparado</button>`;
+      else if(v.estado==='pte-recepcion')
+        acc=`<span style="font-size:11px;color:var(--t2);font-style:italic">Esperando recepción del gestor...</span>`;
+      else if(v.estado==='rep')
+        acc=`<button class="btn-fact" onclick="openFactura(${i})"><i class="ti ti-receipt"></i>Subir factura</button>`;
+      else if(v.estado==='pte-factura')
+        acc=`<span class="badge b-pte-fac">Factura enviada ✓</span>`;
+    }
+    return `<tr>
+      <td><span class="mat">${v.mat}</span></td>
+      <td><span class="mat">${v.marca} ${v.modelo}</span><div class="sub">${v.ano}</div></td>
+      <td>${sb(v.estado)}</td>
+      <td class="${v.dias>7?'warn':''}">${v.dias}d</td>
+      <td>${v.pres?v.pres.toLocaleString('es-ES')+' €':'—'}</td>
+      <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--t2);font-size:12px">${v.desc||'—'}</td>
+      <td style="white-space:nowrap">${acc}</td>
+    </tr>`;
+  }).join('')||`<tr><td colspan="7"><div class="empty"><i class="ti ti-car-off"></i><p>Sin vehículos</p></div></td></tr>`;
+}
+function setF(f){filterE=f;renderVeh()}
+
+// ══════════════════════════════════════════════════════
+//  PRESUPUESTOS (gestor/admin)
+// ══════════════════════════════════════════════════════
+function renderPres(){
+  const pend=veh.filter(v=>v.estado==='pte-autorizar'&&v.pres>0);
+  if(!pend.length){document.getElementById('pres-list').innerHTML=`<div class="empty"><i class="ti ti-circle-check"></i><p>No hay presupuestos pendientes</p></div>`;return}
+  document.getElementById('pres-list').innerHTML=pend.map(v=>{
+    const i=veh.indexOf(v);
+    const resumen=(v.lineas||[]).map(l=>`<div style="font-size:11px;color:var(--t2);margin-top:2px">· ${l.desc} — ${l.tipo} — ${parseFloat(l.precio||0).toLocaleString('es-ES')} €${l.dto>0?' (−'+l.dto+'%)':''}</div>`).join('');
+    return `<div class="pi">
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:13px">${v.mat} — ${v.marca} ${v.modelo} (${v.ano})</div>
+        <div style="font-size:12px;color:var(--t2);margin-top:2px">${v.desc||'—'}</div>
+        ${resumen}
+        <div style="font-size:11px;color:var(--t2);margin-top:4px"><i class="ti ti-clock" style="font-size:12px"></i> ${v.dias} días</div>
+        <div class="pi-btns">
+          <button class="btn-ok" onclick="autorizar(${i})"><i class="ti ti-check"></i>Autorizar</button>
+          <button class="btn-deny" onclick="denegar(${i})"><i class="ti ti-x"></i>Denegar</button>
+        </div>
+      </div>
+      <div style="font-size:16px;font-weight:700;white-space:nowrap">${v.pres.toLocaleString('es-ES')} €</div>
+    </div>`;
+  }).join('');
+}
+
+function autorizar(i){
+  veh[i].estado='aut';
+  // email → taller: presupuesto autorizado
+  enviarNotif(
+    roleEmails.taller||'taller@flota.com',
+    'Taller',
+    '✅ Presupuesto autorizado — '+veh[i].mat,
+    `${veh[i].mat} — ${veh[i].marca} ${veh[i].modelo}`,
+    'El gestor de flota ha autorizado el presupuesto. Puedes comenzar la reparación.',
+    'Ver vehículo en FleetOS',
+    userEmail
+  );
+  toast('Presupuesto autorizado ✓ — email enviado al taller');
+  renderPres();
+}
+
+function denegar(i){
+  veh[i].estado='pte-presupuesto';
+  veh[i].pres=0;
+  veh[i].lineas=[];
+  toast('Presupuesto denegado');
+  renderPres();
+}
+
+// ══════════════════════════════════════════════════════
+//  RECEPCIÓN (gestor/admin)
+// ══════════════════════════════════════════════════════
+function renderRecepcion(){
+  const pend=veh.filter(v=>v.estado==='pte-recepcion');
+  if(!pend.length){document.getElementById('rec-list').innerHTML=`<div class="empty"><i class="ti ti-circle-check"></i><p>No hay vehículos pendientes de recepción</p></div>`;return}
+  document.getElementById('rec-list').innerHTML=pend.map(v=>{
+    const i=veh.indexOf(v);
+    return `<div class="pi">
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:13px">${v.mat} — ${v.marca} ${v.modelo} (${v.ano})</div>
+        <div style="font-size:12px;color:var(--t2);margin-top:2px">${v.desc||'—'}</div>
+        <div style="font-size:11px;color:var(--t2);margin-top:4px"><i class="ti ti-clock" style="font-size:12px"></i> ${v.dias} días en taller · Importe: <strong>${v.pres.toLocaleString('es-ES')} €</strong></div>
+        <div class="pi-btns">
+          <button class="btn-rec" onclick="recepcionar(${i})"><i class="ti ti-clipboard-check"></i>Recepcionar vehículo</button>
+        </div>
+      </div>
+      <div>${sb(v.estado)}</div>
+    </div>`;
+  }).join('');
+}
+
+function recepcionar(i){
+  veh[i].estado='rep';
+  // email → taller: vehículo recepcionado, puede facturar
+  enviarNotif(
+    roleEmails.taller||'taller@flota.com',
+    'Taller',
+    '📋 Vehículo recepcionado — '+veh[i].mat,
+    `${veh[i].mat} — ${veh[i].marca} ${veh[i].modelo}`,
+    'El gestor ha recepcionado el vehículo. Ya puedes subir la factura.',
+    'Subir factura en FleetOS',
+    userEmail
+  );
+  toast('Vehículo recepcionado ✓ — email enviado al taller');
+  renderRecepcion();
+}
+
+// ══════════════════════════════════════════════════════
+//  TALLER: PRESUPUESTO CON LÍNEAS
+// ══════════════════════════════════════════════════════
+function openPresupuesto(i){
+  editIdx=i;
+  document.getElementById('mp-mat').textContent=veh[i].mat+' — '+veh[i].marca+' '+veh[i].modelo;
+  lineas=veh[i].lineas&&veh[i].lineas.length?[...veh[i].lineas]:[{desc:'',tipo:'sustituir',precio:'',dto:0}];
+  renderLineas();
+  openM('m-presupuesto');
+}
+function renderLineas(){
+  // get taller id from the current vehicle being edited
+  const v=editIdx>=0?veh[editIdx]:null;
+  const tId=v?.tallerId||null;
+  document.getElementById('pres-lineas').innerHTML=lineas.map((l,i)=>`
+    <div class="pl">
+      <div style="position:relative">
+        <input placeholder="Descripción del trabajo..." value="${l.desc||''}"
+          oninput="lineas[${i}].desc=this.value;autocompletarPrecio(${i},this.value,${tId||0})"
+          style="width:100%;padding:6px 8px;font-size:12px;border:1px solid var(--bd);border-radius:6px;background:var(--wh);color:var(--text);font-family:'Inter',sans-serif;outline:none;transition:border-color .2s"
+          onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--bd)'">
+        <div id="hint-${i}" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--gbg);border:1px solid var(--gb);border-radius:6px;padding:6px 10px;font-size:11px;z-index:10;cursor:pointer;color:var(--green);margin-top:2px"></div>
+      </div>
+      <select onchange="lineas[${i}].tipo=this.value" style="padding:6px 8px;font-size:12px;border:1px solid var(--bd);border-radius:6px;background:var(--wh);color:var(--text);font-family:'Inter',sans-serif;outline:none;width:100%">
+        <option value="sustituir"${l.tipo==='sustituir'?' selected':''}>Sustituir</option>
+        <option value="reparar"${l.tipo==='reparar'?' selected':''}>Reparar</option>
+      </select>
+      <input type="number" placeholder="0,00" min="0" step="0.01" value="${l.precio||''}" id="precio-input-${i}"
+        oninput="lineas[${i}].precio=this.value;calcTotal()"
+        style="padding:6px 8px;font-size:12px;border:1px solid var(--bd);border-radius:6px;background:var(--wh);color:var(--text);font-family:'Inter',sans-serif;outline:none;width:100%;transition:border-color .2s"
+        onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--bd)'">
+      <input type="number" placeholder="0" min="0" max="100" step="1" value="${l.dto||0}"
+        oninput="lineas[${i}].dto=parseFloat(this.value)||0;calcTotal()"
+        style="padding:6px 8px;font-size:12px;border:1px solid var(--bd);border-radius:6px;background:var(--wh);color:var(--text);font-family:'Inter',sans-serif;outline:none;width:100%;transition:border-color .2s"
+        onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--bd)'">
+      <button class="del" onclick="delLinea(${i})"><i class="ti ti-x"></i></button>
+    </div>`).join('');
+  calcTotal();
+}
+
+function autocompletarPrecio(idx, desc, tallerId){
+  const hint=document.getElementById('hint-'+idx);
+  if(!desc||!tallerId||!hint){if(hint)hint.style.display='none';return}
+  const precio=buscarPrecioEnTarifa(desc,tallerId);
+  if(precio){
+    hint.style.display='block';
+    hint.innerHTML=`<i class="ti ti-bolt" style="font-size:11px"></i> Precio acordado: <strong>${parseFloat(precio).toLocaleString('es-ES',{minimumFractionDigits:2})} €</strong> — <span style="text-decoration:underline">Aplicar</span>`;
+    hint.onclick=()=>{
+      lineas[idx].precio=precio;
+      renderLineas();
+    };
+  } else {
+    hint.style.display='none';
+  }
+}
+function addLinea(){lineas.push({desc:'',tipo:'sustituir',precio:'',dto:0});renderLineas()}
+function delLinea(i){if(lineas.length===1){toast('Debe haber al menos una línea ⚠️');return}lineas.splice(i,1);renderLineas()}
+function calcTotal(){
+  const total=lineas.reduce((sum,l)=>{
+    const p=parseFloat(l.precio)||0,dto=parseFloat(l.dto)||0;
+    return sum+p*(1-dto/100);
+  },0);
+  document.getElementById('pres-total').textContent=total.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
+  return total;
+}
+function savePresupuesto(){
+  if(!lineas.some(l=>l.desc&&l.precio)){toast('Añade al menos una línea con descripción y precio ⚠️');return}
+  const total=calcTotal();
+  veh[editIdx].lineas=[...lineas];
+  veh[editIdx].pres=total;
+  veh[editIdx].estado='pte-autorizar';
+  closeM('m-presupuesto');
+  // email → gestor: nuevo presupuesto pendiente
+  enviarNotif(
+    roleEmails.gestor||roleEmails.admin||'gestor@flota.com',
+    'Gestor',
+    '💶 Nuevo presupuesto pendiente — '+veh[editIdx].mat,
+    `${veh[editIdx].mat} — ${veh[editIdx].marca} ${veh[editIdx].modelo}`,
+    `El taller ha subido un presupuesto de <strong>${total.toLocaleString('es-ES',{minimumFractionDigits:2})} €</strong> pendiente de tu autorización.`,
+    'Revisar presupuesto en FleetOS',
+    userEmail
+  );
+  toast('Presupuesto enviado al gestor ✓ — email enviado');
+  renderVeh();
+}
+
+// ══════════════════════════════════════════════════════
+//  TALLER: MARCAR REPARADO
+// ══════════════════════════════════════════════════════
+function marcarReparado(i){
+  veh[i].estado='pte-recepcion';
+  // email → gestor: vehículo reparado, pendiente de recepción
+  enviarNotif(
+    roleEmails.gestor||roleEmails.admin||'gestor@flota.com',
+    'Gestor',
+    '🔧 Vehículo reparado — pendiente de recepción — '+veh[i].mat,
+    `${veh[i].mat} — ${veh[i].marca} ${veh[i].modelo}`,
+    'El taller ha finalizado la reparación. El vehículo está pendiente de que lo recepciones para que el taller pueda facturar.',
+    'Recepcionar vehículo en FleetOS',
+    userEmail
+  );
+  toast('Marcado como reparado ✓ — email enviado al gestor');
+  renderVeh();
+}
+
+// ══════════════════════════════════════════════════════
+//  TALLER: FACTURA
+// ══════════════════════════════════════════════════════
+function openFactura(i){
+  editIdx=i;
+  document.getElementById('mf-mat').textContent=veh[i].mat+' — '+veh[i].marca+' '+veh[i].modelo;
+  document.getElementById('ff-num').value='';
+  document.getElementById('ff-importe').value=veh[i].pres||'';
+  document.getElementById('ff-fname').textContent='Ningún archivo seleccionado';
+  openM('m-factura');
+}
+function saveFactura(){
+  const num=document.getElementById('ff-num').value.trim();
+  const imp=parseFloat(document.getElementById('ff-importe').value);
+  if(!num){toast('Introduce el número de factura ⚠️');return}
+  if(!imp||imp<=0){toast('Introduce el importe ⚠️');return}
+  veh[editIdx].estado='pte-factura';
+  veh[editIdx].factura={num,importe:imp};
+  closeM('m-factura');
+  // email → gestor: factura subida
+  enviarNotif(
+    roleEmails.gestor||roleEmails.admin||'gestor@flota.com',
+    'Gestor',
+    '🧾 Factura subida — '+veh[editIdx].mat,
+    `${veh[editIdx].mat} — ${veh[editIdx].marca} ${veh[editIdx].modelo}`,
+    `El taller ha subido la factura nº <strong>${num}</strong> por importe de <strong>${imp.toLocaleString('es-ES')} €</strong>. El proceso ha finalizado.`,
+    'Ver detalle en FleetOS',
+    userEmail
+  );
+  toast('Factura subida ✓ — email enviado al gestor');
+  renderVeh();
+}
+
+// ══════════════════════════════════════════════════════
+//  ADMIN: AÑADIR/EDITAR VEHÍCULO
+// ══════════════════════════════════════════════════════
+function openAdd(){
+  editIdx=-1;
+  document.getElementById('m-v-title').textContent='Añadir vehículo';
+  ['fv-mat','fv-ano','fv-marca','fv-modelo','fv-dias','fv-desc'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''});
+  document.getElementById('fv-estado').value='pte-presupuesto';
+  document.getElementById('fv-prev').innerHTML='';
+  openM('m-vehiculo');
+}
+function openEdit(i){
+  editIdx=i;const v=veh[i];
+  document.getElementById('m-v-title').textContent='Editar vehículo';
+  document.getElementById('fv-mat').value=v.mat;
+  document.getElementById('fv-marca').value=v.marca;
+  document.getElementById('fv-modelo').value=v.modelo||'';
+  document.getElementById('fv-ano').value=v.ano||'';
+  document.getElementById('fv-estado').value=v.estado;
+  document.getElementById('fv-dias').value=v.dias||0;
+  document.getElementById('fv-desc').value=v.desc||'';
+  document.getElementById('fv-prev').innerHTML='';
+  openM('m-vehiculo');
+}
+function saveVehiculo(){
+  const mat=document.getElementById('fv-mat').value.trim();
+  const marca=document.getElementById('fv-marca').value.trim();
+  if(!mat){toast('Matrícula obligatoria ⚠️');return}
+  if(!marca){toast('Marca obligatoria ⚠️');return}
+  const fotos=pendingPhotos['fv-photos']||[];
+  const v={mat,marca,
+    modelo:document.getElementById('fv-modelo').value.trim(),
+    ano:parseInt(document.getElementById('fv-ano').value)||new Date().getFullYear(),
+    estado:document.getElementById('fv-estado').value,
+    dias:parseInt(document.getElementById('fv-dias').value)||0,
+    desc:document.getElementById('fv-desc').value.trim(),
+    pres:editIdx>=0?veh[editIdx].pres:0,
+    fotos:editIdx>=0?(veh[editIdx].fotos||[]).concat(fotos):fotos,
+    factura:editIdx>=0?veh[editIdx].factura:null,
+    lineas:editIdx>=0?veh[editIdx].lineas||[]:[]
+  };
+  if(editIdx>=0)veh[editIdx]=v;else veh.unshift(v);
+  closeM('m-vehiculo');
+  toast(editIdx>=0?'Vehículo actualizado ✓':'Vehículo añadido ✓');
+  renderVeh();
+}
+
+// ══════════════════════════════════════════════════════
+//  GESTOR: FOTOS / ESTADO
+// ══════════════════════════════════════════════════════
+function openGFotos(i){editIdx=i;document.getElementById('m-fotos-mat').textContent=veh[i].mat+' — '+veh[i].marca+' '+veh[i].modelo;document.getElementById('gf-prev').innerHTML='';openM('m-fotos')}
+function saveGFotos(){const fotos=pendingPhotos['gf-photos']||[];if(!fotos.length){toast('Selecciona al menos una foto ⚠️');return}veh[editIdx].fotos=(veh[editIdx].fotos||[]).concat(fotos);closeM('m-fotos');toast('Fotos guardadas ✓')}
+function openEstadoModal(i){editIdx=i;document.getElementById('me-mat').textContent=veh[i].mat+' — '+veh[i].marca+' '+veh[i].modelo;document.getElementById('fe-estado').value=veh[i].estado;document.getElementById('fe-desc').value=veh[i].desc||'';openM('m-estado')}
+function saveEstado(){veh[editIdx].estado=document.getElementById('fe-estado').value;const d=document.getElementById('fe-desc').value.trim();if(d)veh[editIdx].desc=d;closeM('m-estado');toast('Estado actualizado ✓');renderVeh()}
+
+// ══════════════════════════════════════════════════════
+//  CATÁLOGO DE RECAMBIOS
+// ══════════════════════════════════════════════════════
+const RECAMBIOS = {
+  'Motor': {
+    icon:'ti-engine',
+    items:['Aceite de motor','Filtro de aceite','Filtro de aire','Filtro de combustible','Bujías','Bobina de encendido','Correa de distribución','Tensor de distribución','Bomba de agua','Bomba de aceite','Junta de culata','Tapa de válvulas','Árbol de levas','Cadena de distribución','Pistones','Segmentos','Cojinetes de biela','Cojinetes de cigüeñal','Carter de aceite','Sonda lambda','Inyectores','Bomba de inyección','Turbocompresor','Intercooler','Válvula EGR','Colector de admisión','Colector de escape','Termostato','Radiador de agua','Tapa del radiador']
+  },
+  'Frenos': {
+    icon:'ti-circle-off',
+    items:['Pastillas de freno delanteras','Pastillas de freno traseras','Discos de freno delanteros','Discos de freno traseros','Zapatas de freno','Cilindro de freno','Bomba de freno','Latiguillos de freno','Líquido de frenos','Pinzas de freno delanteras','Pinzas de freno traseras','Freno de mano cable','Sensor de desgaste pastillas','ABS sensor rueda','Bomba ABS','Módulo ABS']
+  },
+  'Suspensión': {
+    icon:'ti-car-crane',
+    items:['Amortiguador delantero','Amortiguador trasero','Muelle delantero','Muelle trasero','Rótula de dirección','Rótula de suspensión','Barra estabilizadora','Silentblock delantero','Silentblock trasero','Soporte de amortiguador','Cojinete de amortiguador','Brazo de suspensión delantero','Brazo de suspensión trasero','Tirante de suspensión','Testigo de suspensión','Guardapolvo amortiguador']
+  },
+  'Dirección': {
+    icon:'ti-steering-wheel',
+    items:['Cremallera de dirección','Bomba de dirección asistida','Manguito dirección asistida','Liquido dirección asistida','Terminal de dirección','Columna de dirección','Acoplamiento elástico dirección','Sensor ángulo dirección','Motor dirección eléctrica','Palanca de dirección']
+  },
+  'Transmisión': {
+    icon:'ti-manual-gearbox',
+    items:['Embrague completo','Disco de embrague','Plato de presión','Rodamiento de desembrague','Cable de embrague','Aceite de caja de cambios','Caja de cambios','Diferencial','Árbol de transmisión','Junta homocinética','Fuelle homocinética','Semieje delantero','Semieje trasero','Convertidor de par','Filtro caja automática','Aceite transmisión automática']
+  },
+  'Eléctrico': {
+    icon:'ti-bolt',
+    items:['Batería','Alternador','Motor de arranque','Relé','Fusible','Mazo de cables','Sensor de temperatura','Sensor de presión','Sensor de posición cigüeñal','Sensor de posición árbol levas','Centralita motor ECU','Módulo de carrocería','Interruptor de encendido','Bobina de precalentamiento','Bujías de precalentamiento','Sonda de temperatura exterior','Sensor lluvia','Sensor luz','Sensor de proximidad','Cámara trasera']
+  },
+  'Iluminación': {
+    icon:'ti-bulb',
+    items:['Faro delantero izquierdo','Faro delantero derecho','Piloto trasero izquierdo','Piloto trasero derecho','Bombilla H4','Bombilla H7','Bombilla LED','Kit xenón','Luz de freno','Luz de marcha atrás','Intermitente delantero','Intermitente lateral','Luz de niebla delantera','Luz de niebla trasera','Luz interior habitáculo','Luz de matrícula','Módulo de faros','Motor regulación faros']
+  },
+  'Carrocería': {
+    icon:'ti-car',
+    items:[
+      'Parachoques delantero completo','Parachoques trasero completo','Spoiler parachoques delantero','Spoiler parachoques trasero',
+      'Refuerzo parachoques delantero','Refuerzo parachoques trasero','Absorbente impacto delantero','Absorbente impacto trasero',
+      'Soporte parachoques del. izquierdo','Soporte parachoques del. derecho','Soporte parachoques tra. izquierdo','Soporte parachoques tra. derecho',
+      'Embellecedor parachoques delantero','Embellecedor parachoques trasero','Difusor trasero','Lip delantero',
+      'Tapa gancho remolque delantero','Tapa gancho remolque trasero','Enganche remolque','Bola remolque',
+      'Rejilla delantera central','Rejilla delantera izquierda','Rejilla delantera derecha','Rejilla inferior delantera','Marco rejilla delantera',
+      'Panel frontal superior','Panel frontal inferior','Travesaño frontal superior','Travesaño frontal inferior',
+      'Soporte radiador superior','Soporte radiador inferior','Soporte faro delantero izquierdo','Soporte faro delantero derecho',
+      'Aleta delantera izquierda','Aleta delantera derecha','Aleta trasera izquierda','Aleta trasera derecha',
+      'Extensión aleta del. izquierda','Extensión aleta del. derecha','Moldura aleta del. izquierda','Moldura aleta del. derecha',
+      'Soporte aleta del. izquierda','Soporte aleta del. derecha',
+      'Capó completo','Marco capó','Bisagra capó izquierda','Bisagra capó derecha',
+      'Amortiguador capó izquierdo','Amortiguador capó derecho','Cierre capó / pestillo','Cable apertura capó',
+      'Aislante acústico capó','Moldura capó','Deflector capó','Tope goma capó',
+      'Puerta delantera izquierda completa','Puerta delantera derecha completa','Puerta trasera izquierda completa','Puerta trasera derecha completa',
+      'Bisagra puerta del. sup. izquierda','Bisagra puerta del. sup. derecha','Bisagra puerta del. inf. izquierda','Bisagra puerta del. inf. derecha',
+      'Bisagra puerta tra. sup. izquierda','Bisagra puerta tra. sup. derecha','Bisagra puerta tra. inf. izquierda','Bisagra puerta tra. inf. derecha',
+      'Moldura puerta del. izquierda','Moldura puerta del. derecha','Moldura puerta tra. izquierda','Moldura puerta tra. derecha',
+      'Tapizado puerta del. izquierda','Tapizado puerta del. derecha','Tapizado puerta tra. izquierda','Tapizado puerta tra. derecha',
+      'Maneta exterior puerta del. izquierda','Maneta exterior puerta del. derecha','Maneta exterior puerta tra. izquierda','Maneta exterior puerta tra. derecha',
+      'Maneta interior puerta del. izquierda','Maneta interior puerta del. derecha','Maneta interior puerta tra. izquierda','Maneta interior puerta tra. derecha',
+      'Cerradura puerta del. izquierda','Cerradura puerta del. derecha','Cerradura puerta tra. izquierda','Cerradura puerta tra. derecha',
+      'Varilla cerradura del. izquierda','Varilla cerradura del. derecha','Varilla cerradura tra. izquierda','Varilla cerradura tra. derecha',
+      'Tope puerta del. izquierdo','Tope puerta del. derecho','Tope puerta tra. izquierdo','Tope puerta tra. derecho',
+      'Junta goma puerta del. izquierda','Junta goma puerta del. derecha','Junta goma puerta tra. izquierda','Junta goma puerta tra. derecha',
+      'Marco puerta del. izquierda','Marco puerta del. derecha',
+      'Maletero / portón trasero completo','Bisagra maletero izquierda','Bisagra maletero derecha',
+      'Amortiguador maletero izquierdo','Amortiguador maletero derecho','Cerradura maletero','Cable apertura maletero',
+      'Moldura maletero','Embellecedor maletero','Junta goma maletero','Aislante maletero',
+      'Tapa maletero interior','Bandeja portaequipajes',
+      'Espejo retrovisor izquierdo completo','Espejo retrovisor derecho completo',
+      'Tapa espejo izquierdo','Tapa espejo derecho','Cristal espejo izquierdo','Cristal espejo derecho',
+      'Motor espejo izquierdo','Motor espejo derecho','Soporte espejo izquierdo','Soporte espejo derecho',
+      'Espejo retrovisor interior','Soporte espejo interior',
+      'Parabrisas delantero','Cristal trasero',
+      'Cristal puerta del. izquierda','Cristal puerta del. derecha','Cristal puerta tra. izquierda','Cristal puerta tra. derecha',
+      'Cristal fijo lateral tra. izquierdo','Cristal fijo lateral tra. derecho','Cristal cuarto izquierdo','Cristal cuarto derecho',
+      'Techo solar cristal','Techo solar mecanismo','Techo solar marco','Deflector techo solar',
+      'Techo panorámico cristal delantero','Techo panorámico cristal trasero',
+      'Marco parabrisas','Goma parabrisas','Goma cristal trasero','Moldura parabrisas',
+      'Pilar A izquierdo','Pilar A derecho','Pilar B izquierdo','Pilar B derecho','Pilar C izquierdo','Pilar C derecho','Pilar D izquierdo','Pilar D derecho',
+      'Larguero delantero izquierdo','Larguero delantero derecho','Larguero trasero izquierdo','Larguero trasero derecho',
+      'Travesaño central','Travesaño trasero','Longarina izquierda','Longarina derecha',
+      'Refuerzo umbral izquierdo','Refuerzo umbral derecho',
+      'Paso de rueda del. izquierdo','Paso de rueda del. derecho','Paso de rueda tra. izquierdo','Paso de rueda tra. derecho',
+      'Umbral puerta del. izquierda','Umbral puerta del. derecha','Umbral puerta tra. izquierda','Umbral puerta tra. derecha',
+      'Faldón lateral izquierdo','Faldón lateral derecho','Faldón trasero','Faldón delantero',
+      'Estribo izquierdo','Estribo derecho','Moldura lateral izquierda','Moldura lateral derecha',
+      'Protector lateral izquierdo','Protector lateral derecho',
+      'Panel techo exterior','Forro techo interior','Arco techo delantero','Arco techo trasero',
+      'Antena techo','Base antena','Alerón techo','Spoiler techo',
+      'Guardabarro del. izquierdo','Guardabarro del. derecho','Guardabarro tra. izquierdo','Guardabarro tra. derecho',
+      'Cubre cárter','Deflector bajo motor','Protección bajo carrocería delantera','Protección bajo carrocería trasera',
+      'Embellecedor bajo puerta izquierdo','Embellecedor bajo puerta derecho',
+      'Tapa depósito combustible','Bisagra tapa depósito',
+      'Anagrama / logo delantero','Anagrama / logo trasero','Anagrama lateral izquierdo','Anagrama lateral derecho',
+      'Insignia / escudo marca','Letras modelo',
+      'Tapacubos','Tapa tornillo rueda',
+      'Sellador de juntas carrocería','Masilla de carrocería','Imprimación carrocería','Imprimación plásticos',
+      'Aparejo carrocería','Laca transparente','Pintura en spray color','Pintura en bote color',
+      'Lija P80','Lija P120','Lija P240','Lija P400','Lija P800','Lija P1200',
+      'Fondo anticorrosión','Cera de protección carrocería','Betún de protección bajos',
+      'Adhesivo doble cara carrocería','Silicona negra carrocería','Silicona transparente',
+      'Espuma expansiva','Kit reparación rayadas','Kit reparación abolladuras',
+      'Deflector ventana del. izquierdo','Deflector ventana del. derecho','Deflector ventana tra. izquierdo','Deflector ventana tra. derecho',
+      'Topes goma carrocería','Goma protección bordes puerta','Protector esquinas parachoques','Cinta protectora puertas'
+    ]
+  },
+  'Climatización': {
+    icon:'ti-snowflake',
+    items:['Compresor A/C','Condensador A/C','Filtro habitáculo / Polen','Gas refrigerante R134a','Gas refrigerante R1234yf','Válvula de expansión','Secador de A/C','Manguera A/C','Resistencia calefacción','Motor calefacción / ventilador','Termostato habitáculo','Mando climatización','Sensor temperatura interior','Evaporador A/C']
+  },
+  'Escape': {
+    icon:'ti-wind',
+    items:['Catalizador','Silenciador trasero','Silenciador intermedio','Tubo de escape','Colector de escape','Junta de escape','Sonda lambda delantera','Sonda lambda trasera','Filtro de partículas DPF','Abrazadera de escape','Soporte de escape','Aditivo DPF']
+  },
+  'Neumáticos': {
+    icon:'ti-circle',
+    items:['Neumático 175/65 R14','Neumático 185/60 R15','Neumático 195/55 R16','Neumático 205/55 R16','Neumático 215/55 R17','Neumático 225/45 R17','Neumático 225/40 R18','Neumático 235/35 R19','Neumático de invierno','Neumático run-flat','Válvula de neumático','Tapacubo','Llanta de acero','Llanta de aleación','Líquido anticongelante rueda']
+  },
+  'Líquidos': {
+    icon:'ti-droplet',
+    items:['Aceite 5W30','Aceite 5W40','Aceite 0W20','Anticongelante / refrigerante','Líquido de frenos DOT4','Líquido dirección asistida','Aceite caja de cambios','Aceite diferencial','Líquido limpiaparabrisas','Aditivo limpiador inyectores','Aditivo combustible','Grasa multiusos']
+  },
+  'Interior': {
+    icon:'ti-armchair',
+    items:['Tapicería asiento delantero','Tapicería asiento trasero','Alfombrilla delantera','Alfombrilla trasera','Volante','Pomo cambio de marchas','Airbag conductor','Airbag acompañante','Cinturón de seguridad','Pretensor cinturón','Maneta interior puerta','Elevalunas eléctrico','Motor elevalunas','Mecanismo cerradura','Cerradura centralizada','Mando a distancia llave','Antena GPS / radio','Radio / pantalla multimedia']
+  },
+  'Filtros': {
+    icon:'ti-filter',
+    items:['Filtro de aceite','Filtro de aire motor','Filtro de habitáculo / Polen','Filtro de combustible gasolina','Filtro de combustible diésel','Filtro de partículas DPF','Filtro de transmisión automática','Filtro hidráulico dirección']
+  },
+};
+
+let recSeleccionados = []; // [{nombre, qty}]
+let recCatActiva = Object.keys(RECAMBIOS)[0];
+
+function initRecambios(){
+  const cats = document.getElementById('rec-cats');
+  cats.innerHTML = Object.keys(RECAMBIOS).map(cat=>
+    `<button class="rec-cat-btn${cat===recCatActiva?' active':''}" onclick="setRecCat('${cat}')">${cat}</button>`
+  ).join('');
+  renderRecLista();
+}
+
+function setRecCat(cat){
+  recCatActiva=cat;
+  document.querySelectorAll('.rec-cat-btn').forEach(b=>b.classList.toggle('active',b.textContent===cat));
+  document.getElementById('rec-search').value='';
+  renderRecLista();
+}
+
+function filtrarRecambios(){
+  renderRecLista();
+  // si hay búsqueda, mostrar todas las categorías
+}
+
+function renderRecLista(){
+  const q=document.getElementById('rec-search').value.toLowerCase().trim();
+  let items=[];
+  if(q){
+    // buscar en todas las categorías
+    Object.entries(RECAMBIOS).forEach(([cat,data])=>{
+      data.items.filter(i=>i.toLowerCase().includes(q)).forEach(i=>items.push({nombre:i,cat,icon:data.icon}));
+    });
+  } else {
+    const data=RECAMBIOS[recCatActiva];
+    items=data.items.map(i=>({nombre:i,cat:recCatActiva,icon:data.icon}));
+  }
+
+  const ya=recSeleccionados.map(r=>r.nombre);
+  document.getElementById('rec-lista').innerHTML = items.length
+    ? items.map(item=>`
+        <div class="rec-item${ya.includes(item.nombre)?' selected':''}" onclick="toggleRec('${item.nombre.replace(/'/g,"\\'")}')">
+          <div class="rec-item-left">
+            <i class="ti ${item.icon}"></i>
+            <span>${item.nombre}</span>
+            ${q&&item.cat?`<span style="font-size:10px;color:var(--t2);margin-left:4px">${item.cat}</span>`:''}
+          </div>
+          ${ya.includes(item.nombre)
+            ? `<span style="font-size:11px;color:var(--green)"><i class="ti ti-check"></i> Añadido</span>`
+            : `<button class="rec-add-btn" onclick="event.stopPropagation();toggleRec('${item.nombre.replace(/'/g,"\\'")}')"><i class="ti ti-plus"></i> Añadir</button>`
+          }
+        </div>`).join('')
+    : `<div style="text-align:center;padding:1.5rem;font-size:13px;color:var(--t2)">Sin resultados para "<strong>${q}</strong>"</div>`;
+}
+
+function toggleRec(nombre){
+  const idx=recSeleccionados.findIndex(r=>r.nombre===nombre);
+  if(idx>=0) recSeleccionados.splice(idx,1);
+  else recSeleccionados.push({nombre,qty:1});
+  renderRecLista();
+  renderRecSeleccionados();
+}
+
+function cambiarQtyRec(nombre,delta){
+  const r=recSeleccionados.find(r=>r.nombre===nombre);
+  if(!r) return;
+  r.qty=Math.max(1,r.qty+delta);
+  renderRecSeleccionados();
+}
+
+function renderRecSeleccionados(){
+  const wrap=document.getElementById('rec-seleccionados-wrap');
+  const el=document.getElementById('rec-seleccionados');
+  wrap.style.display=recSeleccionados.length?'block':'none';
+  el.innerHTML=recSeleccionados.map(r=>`
+    <div class="rec-tag">
+      <span class="rec-tag-name">${r.nombre}</span>
+      <div class="rec-qty">
+        <button onclick="cambiarQtyRec('${r.nombre.replace(/'/g,"\\'")}', -1)">−</button>
+        <span>${r.qty}</span>
+        <button onclick="cambiarQtyRec('${r.nombre.replace(/'/g,"\\'")}', 1)">+</button>
+      </div>
+      <button class="rec-remove" onclick="toggleRec('${r.nombre.replace(/'/g,"\\'")}')"><i class="ti ti-x"></i></button>
+    </div>`).join('');
+}
+
+function poblarTallerSelector(){
+  const sel=document.getElementById('nc-taller-id');
+  if(!sel) return;
+  sel.innerHTML='<option value="">— Selecciona el taller —</option>'+
+    talleres.map(t=>`<option value="${t.id}"${t.id===tallerSeleccionadoId?' selected':''}>${t.nombre} · ${t.ciudad}</option>`).join('');
+  if(!talleres.length){
+    sel.innerHTML='<option value="">No hay talleres disponibles — añade uno en la sección Talleres</option>';
+  }
+}
+
+function onTipo(){
+  const tipo=document.getElementById('nc-tipo').value;
+  const wrap=document.getElementById('nc-sub-wrap');
+  const recWrap=document.getElementById('nc-recambios-wrap');
+  if(SUBTIPOS[tipo]){
+    document.getElementById('nc-sub-label').textContent=SUBTIPOS[tipo].label;
+    document.getElementById('nc-subtipo').innerHTML='<option value="">— Selecciona —</option>'+SUBTIPOS[tipo].opts.map(o=>`<option>${o}</option>`).join('');
+    wrap.style.display='block';
+  } else wrap.style.display='none';
+  if(tipo==='repuestos'){
+    recWrap.style.display='block';
+    recSeleccionados=[];recCatActiva=Object.keys(RECAMBIOS)[0];
+    initRecambios();renderRecSeleccionados();
+  } else recWrap.style.display='none';
+  const esCarr=tipo==='carroceria';
+  document.getElementById('nc-foto-req').style.display=esCarr?'inline':'none';
+  document.getElementById('nc-foto-hint').textContent=esCarr?'Adjunta fotos del daño (obligatorio)':'Clic para añadir fotos (opcional)';
+  const drop=document.getElementById('nc-drop');
+  drop.style.borderColor=esCarr?'#EF9A9A':'';drop.style.background=esCarr?'#FFEBEE':'';
+  document.getElementById('nc-foto-err').style.display='none';
+}
+function abrirCaso(){
+  const mat=document.getElementById('nc-mat').value.trim();
+  const averia=document.getElementById('nc-averia').value.trim();
+  const km=document.getElementById('nc-km').value.trim();
+  const tipo=document.getElementById('nc-tipo').value;
+  const subtipo=document.getElementById('nc-subtipo').value;
+  const fotos=pendingPhotos['nc-photos']||[];
+  const tallerIdSel=parseInt(document.getElementById('nc-taller-id').value)||null;
+  if(!mat){toast('Matrícula obligatoria ⚠️');return}
+  if(!averia){toast('Nombre de avería obligatorio ⚠️');return}
+  if(!km){toast('Kilómetros obligatorios ⚠️');return}
+  if(!tallerIdSel){document.getElementById('nc-taller-err').style.display='block';toast('Selecciona un taller ⚠️');return}
+  document.getElementById('nc-taller-err').style.display='none';
+  if(!tipo){toast('Selecciona el tipo de trabajo ⚠️');return}
+  if(SUBTIPOS[tipo]&&!subtipo){toast('Selecciona el subtipo ⚠️');return}
+  if(tipo==='repuestos'&&!recSeleccionados.length){toast('Selecciona al menos un recambio ⚠️');return}
+  const tallerObj=talleres.find(t=>t.id===tallerIdSel);
+  const tallerEmail=tallerObj?.email||roleEmails.taller||'taller@flota.com';
+  const tallerNombre=tallerObj?.nombre||'Taller';
+  const hora=new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+  const notas=document.getElementById('nc-notas').value.trim();
+  const recambiosCopia=[...recSeleccionados];
+  casos.unshift({mat,averia,km:parseInt(km),tipo,subtipo,fotos,notas,hora,recambios:recambiosCopia,taller:tallerNombre});
+  if(!veh.find(v=>v.mat===mat))
+    veh.unshift({mat,marca:'—',modelo:'',ano:new Date().getFullYear(),estado:'pte-presupuesto',pres:0,dias:0,desc:averia,fotos,factura:null,lineas:[],abiertoPor:role,tallerId:tallerIdSel});
+  const recResumen=recambiosCopia.length?'\nRecambios: '+recambiosCopia.map(r=>r.nombre+(r.qty>1?' x'+r.qty:'')).join(', '):'';
+  enviarNotif(
+    tallerEmail,
+    tallerNombre,
+    '🚗 Nuevo vehículo pendiente de entrar al taller — '+mat,
+    `${mat} — Avería: ${averia}`,
+    `El gestor de flota ha abierto un caso. El vehículo tiene ${parseInt(km).toLocaleString('es-ES')} km y está pendiente de que lo recibas en el taller.${recResumen}${notas?' Notas: '+notas:''}`,
+    'Ver caso en FleetOS',
+    userEmail
+  );
+  renderCasos();resetCaso();
+  toast(`Caso abierto para ${mat} en ${tallerNombre} ✓`);
+}
+function renderCasos(){
+  const cl={carroceria:'b-aut',mecanica:'b-pte-aut',llaves:'b-pte-pre',repuestos:'b-taller'};
+  const tl={carroceria:'Carrocería',mecanica:'Mecánica',llaves:'Llaves',repuestos:'Repuestos'};
+  const el=document.getElementById('casos-lista');
+  if(!casos.length){el.innerHTML='<div class="empty"><i class="ti ti-clipboard"></i><p>Sin casos abiertos hoy</p></div>';return}
+  el.innerHTML=casos.map(c=>`
+    <div style="padding:12px 18px;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;gap:12px">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">
+          <span class="mat">${c.mat}</span>
+          <span class="badge ${cl[c.tipo]||''}">${tl[c.tipo]||c.tipo}${c.subtipo?' · '+c.subtipo:''}</span>
+          <span class="notif-badge"><i class="ti ti-mail" style="font-size:11px"></i>Email enviado</span>
+        </div>
+        <div style="font-size:13px">${c.averia}</div>
+        <div style="font-size:11px;color:var(--t2);margin-top:2px">${c.km.toLocaleString('es-ES')} km${c.taller?' · <strong>'+c.taller+'</strong>':''}${c.notas?' · '+c.notas:''}</div>
+        ${c.recambios&&c.recambios.length?`<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">${c.recambios.map(r=>`<span style="font-size:10px;background:var(--gbg);border:1px solid var(--gb);border-radius:4px;padding:1px 6px;color:var(--green)">${r.nombre}${r.qty>1?' ×'+r.qty:''}</span>`).join('')}</div>`:''}
+      </div>
+      <div style="font-size:11px;color:var(--t2);white-space:nowrap">${c.hora}</div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════════════
+//  TALLERES
+// ══════════════════════════════════════════════════════
+const ESPECIALIDADES = ['Mecánica general','Carrocería y pintura','Electricidad','Diagnosis','Neumáticos','Climatización','Chapa y soldadura','Revisiones oficiales','Vehículos eléctricos','Frenos y suspensión'];
+
+let talleres = [
+  {id:1,nombre:'Taller Mecánica Bilbao',ciudad:'Bilbao',provincia:'Vizcaya',dir:'Calle Autonomía 18',tel:'+34 944 123 456',email:'taller.bilbao@email.com',espec:['Mecánica general','Diagnosis','Frenos y suspensión'],notas:'Lunes a viernes 8-18h'},
+  {id:2,nombre:'Carrocería Express Barakaldo',ciudad:'Barakaldo',provincia:'Vizcaya',dir:'Pol. Ind. Galindo, nave 4',tel:'+34 944 654 321',email:'carroceria.barakaldo@email.com',espec:['Carrocería y pintura','Chapa y soldadura'],notas:'Especialistas en reparación de daños'},
+  {id:3,nombre:'AutoTaller Getxo',ciudad:'Getxo',provincia:'Vizcaya',dir:'Avda. Los Chopos 5',tel:'+34 944 900 111',email:'autotaller.getxo@email.com',espec:['Mecánica general','Revisiones oficiales','Neumáticos'],notas:'Taller oficial multimarca'},
+];
+let tallerEditIdx = -1;
+let tallerSeleccionadoId = null; // gestor: taller elegido
+let especialidadesSeleccionadas = [];
+
+function renderTalleres(){
+  const isAdmin = role==='admin';
+  const isGestor = role==='gestor';
+
+  document.getElementById('btn-add-taller').style.display = isAdmin?'':'none';
+  document.getElementById('taller-selector-wrap').style.display = isGestor?'block':'none';
+
+  if(isGestor){
+    // Selector de taller para gestor
+    const sel=document.getElementById('taller-seleccionado');
+    sel.innerHTML='<option value="">— Selecciona un taller —</option>'+
+      talleres.map(t=>`<option value="${t.id}"${t.id===tallerSeleccionadoId?' selected':''}>${t.nombre} · ${t.ciudad}</option>`).join('');
+    if(tallerSeleccionadoId) mostrarInfoTaller(tallerSeleccionadoId);
+  }
+
+  if(isAdmin){
+    if(!talleres.length){
+      document.getElementById('talleres-grid').innerHTML=`<div class="empty"><i class="ti ti-building"></i><p>No hay talleres registrados. Añade el primero.</p></div>`;
+      return;
+    }
+    document.getElementById('talleres-grid').innerHTML=`<div class="taller-grid">${talleres.map((t,i)=>`
+      <div class="taller-card">
+        <div class="tc-head">
+          <div class="tc-icon"><i class="ti ti-building" style="color:#fff;font-size:20px"></i></div>
+          <div>
+            <div class="tc-name">${t.nombre}</div>
+            <div class="tc-loc"><i class="ti ti-map-pin" style="font-size:11px"></i> ${t.ciudad}, ${t.provincia}</div>
+          </div>
+        </div>
+        <div class="tc-info">
+          <div class="tc-info-row"><i class="ti ti-map-pin"></i>${t.dir||'—'}</div>
+          <div class="tc-info-row"><i class="ti ti-phone"></i>${t.tel||'—'}</div>
+          <div class="tc-info-row"><i class="ti ti-mail"></i>${t.email||'—'}</div>
+          ${t.notas?`<div class="tc-info-row"><i class="ti ti-note"></i>${t.notas}</div>`:''}
+        </div>
+        <div class="tc-espec">${(t.espec||[]).map(e=>`<span class="tc-espec-tag">${e}</span>`).join('')}</div>
+        <div class="tc-actions">
+          <button class="btn-blue" style="font-size:11px;padding:4px 10px" onclick="openTarifas(${i})"><i class="ti ti-currency-euro"></i>Tarifas</button>
+          <button class="btn-g" style="font-size:11px;padding:4px 10px" onclick="openEditTaller(${i})"><i class="ti ti-edit"></i>Editar</button>
+          <button class="btn-deny" style="font-size:11px;padding:4px 10px" onclick="eliminarTaller(${i})"><i class="ti ti-trash"></i>Eliminar</button>
+        </div>
+      </div>`).join('')}</div>`;
+  }
+}
+
+function onTallerChange(){
+  const id=parseInt(document.getElementById('taller-seleccionado').value);
+  tallerSeleccionadoId=id||null;
+  mostrarInfoTaller(id);
+  if(id){
+    const t=talleres.find(t=>t.id===id);
+    if(t) roleEmails.taller=t.email;
+    toast(`Taller seleccionado: ${t?.nombre} ✓`);
+  } else {
+    document.getElementById('taller-info-box').style.display='none';
+  }
+}
+
+function mostrarInfoTaller(id){
+  const t=talleres.find(t=>t.id===id);
+  if(!t){document.getElementById('taller-info-box').style.display='none';return}
+  document.getElementById('ti-nombre').textContent=t.nombre;
+  document.getElementById('ti-ciudad').textContent=t.ciudad;
+  document.getElementById('ti-provincia').textContent=t.provincia;
+  document.getElementById('ti-tel').textContent=t.tel||'—';
+  document.getElementById('ti-email').textContent=t.email||'—';
+  document.getElementById('ti-espec').innerHTML=(t.espec||[]).map(e=>`<span class="tc-espec-tag">${e}</span>`).join('');
+  document.getElementById('taller-info-box').style.display='block';
+}
+
+function renderEspecModalidad(){
+  document.getElementById('ft-espec-list').innerHTML=ESPECIALIDADES.map(e=>`
+    <div class="espec-check${especialidadesSeleccionadas.includes(e)?' on':''}" onclick="toggleEspec('${e}')">
+      <i class="ti ${especialidadesSeleccionadas.includes(e)?'ti-check':'ti-plus'}"></i>${e}
+    </div>`).join('');
+}
+
+function toggleEspec(e){
+  const idx=especialidadesSeleccionadas.indexOf(e);
+  if(idx>=0) especialidadesSeleccionadas.splice(idx,1);
+  else especialidadesSeleccionadas.push(e);
+  renderEspecModalidad();
+}
+
+function openAddTaller(){
+  tallerEditIdx=-1;
+  especialidadesSeleccionadas=[];
+  document.getElementById('m-t-title').textContent='Añadir taller';
+  ['ft-nombre','ft-tel','ft-ciudad','ft-prov','ft-dir','ft-email','ft-notas'].forEach(id=>document.getElementById(id).value='');
+  renderEspecModalidad();
+  openM('m-taller');
+}
+
+function openEditTaller(i){
+  tallerEditIdx=i;
+  const t=talleres[i];
+  especialidadesSeleccionadas=[...(t.espec||[])];
+  document.getElementById('m-t-title').textContent='Editar taller';
+  document.getElementById('ft-nombre').value=t.nombre||'';
+  document.getElementById('ft-tel').value=t.tel||'';
+  document.getElementById('ft-ciudad').value=t.ciudad||'';
+  document.getElementById('ft-prov').value=t.provincia||'';
+  document.getElementById('ft-dir').value=t.dir||'';
+  document.getElementById('ft-email').value=t.email||'';
+  document.getElementById('ft-notas').value=t.notas||'';
+  renderEspecModalidad();
+  openM('m-taller');
+}
+
+function saveTaller(){
+  const nombre=document.getElementById('ft-nombre').value.trim();
+  const ciudad=document.getElementById('ft-ciudad').value.trim();
+  const prov=document.getElementById('ft-prov').value.trim();
+  const email=document.getElementById('ft-email').value.trim();
+  if(!nombre){toast('El nombre es obligatorio ⚠️');return}
+  if(!ciudad){toast('La ciudad es obligatoria ⚠️');return}
+  if(!email||!/\S+@\S+\.\S+/.test(email)){toast('Email válido obligatorio ⚠️');return}
+  const t={
+    id: tallerEditIdx>=0 ? talleres[tallerEditIdx].id : Date.now(),
+    nombre,ciudad,provincia:prov,
+    dir:document.getElementById('ft-dir').value.trim(),
+    tel:document.getElementById('ft-tel').value.trim(),
+    email,
+    espec:[...especialidadesSeleccionadas],
+    notas:document.getElementById('ft-notas').value.trim(),
+  };
+  if(tallerEditIdx>=0) talleres[tallerEditIdx]=t;
+  else talleres.push(t);
+  closeM('m-taller');
+  toast(tallerEditIdx>=0?'Taller actualizado ✓':'Taller añadido ✓');
+  renderTalleres();
+}
+
+function eliminarTaller(i){
+  if(!confirm(`¿Eliminar "${talleres[i].nombre}"?`)) return;
+  talleres.splice(i,1);
+  toast('Taller eliminado');
+  renderTalleres();
+}
+
+// ══════════════════════════════════════════════════════
+//  INFORMES
+// ══════════════════════════════════════════════════════
+let infPeriod = 'semana';
+
+// Datos históricos de muestra para enriquecer los informes
+const historial = [
+  {mat:'1234-ABC',marca:'Volkswagen',modelo:'Golf',    tallerId:1,tallerNombre:'Taller Mecánica Bilbao',    tipo:'mecanica', desc:'Revisión 60.000 km',       dias:3, pres:180, estado:'pte-factura', fecha:'2025-05-12'},
+  {mat:'5678-DEF',marca:'Seat',      modelo:'Ibiza',   tallerId:2,tallerNombre:'Carrocería Express Barakaldo',tipo:'carroceria',desc:'Pintura puerta trasera',   dias:5, pres:300, estado:'pte-factura', fecha:'2025-05-10'},
+  {mat:'9012-GHI',marca:'Toyota',    modelo:'Corolla', tallerId:1,tallerNombre:'Taller Mecánica Bilbao',    tipo:'mecanica', desc:'Cambio pastillas y discos', dias:1, pres:215, estado:'pte-factura', fecha:'2025-05-14'},
+  {mat:'3456-JKL',marca:'BMW',       modelo:'Serie 3', tallerId:3,tallerNombre:'AutoTaller Getxo',          tipo:'mecanica', desc:'Revisión 30.000 km',        dias:2, pres:120, estado:'pte-factura', fecha:'2025-05-08'},
+  {mat:'7890-MNO',marca:'Renault',   modelo:'Megane',  tallerId:2,tallerNombre:'Carrocería Express Barakaldo',tipo:'carroceria',desc:'Reparación parachoques',  dias:4, pres:380, estado:'pte-factura', fecha:'2025-05-13'},
+  {mat:'2345-PQR',marca:'Ford',      modelo:'Focus',   tallerId:1,tallerNombre:'Taller Mecánica Bilbao',    tipo:'mecanica', desc:'Cambio correa distribución',dias:2, pres:420, estado:'pte-factura', fecha:'2025-05-06'},
+  {mat:'6789-STU',marca:'Audi',      modelo:'A3',      tallerId:3,tallerNombre:'AutoTaller Getxo',          tipo:'mecanica', desc:'Cambio aceite y filtros',   dias:1, pres:95,  estado:'pte-factura', fecha:'2025-05-15'},
+  {mat:'1357-VWX',marca:'Mercedes',  modelo:'Clase A', tallerId:2,tallerNombre:'Carrocería Express Barakaldo',tipo:'carroceria',desc:'Sustitución parabrisas', dias:1, pres:280, estado:'pte-factura', fecha:'2025-05-09'},
+  {mat:'2468-YZA',marca:'Nissan',    modelo:'Qashqai', tallerId:1,tallerNombre:'Taller Mecánica Bilbao',    tipo:'mecanica', desc:'Frenos traseros completos',  dias:1, pres:160, estado:'pte-factura', fecha:'2025-04-28'},
+  {mat:'3579-BCD',marca:'Hyundai',   modelo:'Tucson',  tallerId:3,tallerNombre:'AutoTaller Getxo',          tipo:'mecanica', desc:'Diagnosis + reparación ECU', dias:3, pres:340, estado:'pte-factura', fecha:'2025-04-25'},
+  {mat:'4680-EFG',marca:'Kia',       modelo:'Sportage',tallerId:1,tallerNombre:'Taller Mecánica Bilbao',    tipo:'mecanica', desc:'Cambio embrague',            dias:4, pres:580, estado:'pte-factura', fecha:'2025-04-30'},
+  {mat:'5791-HIJ',marca:'Peugeot',   modelo:'3008',    tallerId:2,tallerNombre:'Carrocería Express Barakaldo',tipo:'carroceria',desc:'Pintura capó completo',   dias:3, pres:260, estado:'pte-factura', fecha:'2025-04-22'},
+];
+
+
+// ══════════════════════════════════════════════════════
+//  BASE DE VEHÍCULOS CORPORATIVA
+// ══════════════════════════════════════════════════════
+let baseVehiculos = [
+  {mat:'1234-ABC',marca:'Volkswagen',modelo:'Golf',      ano:2020,km:62400, delegacion:'Bilbao Norte',    updated:'2025-05-14'},
+  {mat:'5678-DEF',marca:'Seat',      modelo:'Ibiza',     ano:2019,km:88300, delegacion:'Bilbao Norte',    updated:'2025-05-12'},
+  {mat:'9012-GHI',marca:'Toyota',    modelo:'Corolla',   ano:2021,km:41200, delegacion:'Barakaldo',       updated:'2025-05-13'},
+  {mat:'3456-JKL',marca:'BMW',       modelo:'Serie 3',   ano:2022,km:29800, delegacion:'Bilbao Norte',    updated:'2025-05-15'},
+  {mat:'7890-MNO',marca:'Renault',   modelo:'Megane',    ano:2018,km:104500,delegacion:'Getxo',           updated:'2025-05-10'},
+  {mat:'2345-PQR',marca:'Ford',      modelo:'Focus',     ano:2020,km:55700, delegacion:'Bilbao Norte',    updated:'2025-05-11'},
+  {mat:'6789-STU',marca:'Audi',      modelo:'A3',        ano:2023,km:18200, delegacion:'Getxo',           updated:'2025-05-14'},
+  {mat:'1357-VWX',marca:'Mercedes',  modelo:'Clase A',   ano:2022,km:34100, delegacion:'Barakaldo',       updated:'2025-05-09'},
+  {mat:'2468-YZA',marca:'Nissan',    modelo:'Qashqai',   ano:2021,km:47600, delegacion:'Bilbao Norte',    updated:'2025-05-08'},
+  {mat:'3579-BCD',marca:'Hyundai',   modelo:'Tucson',    ano:2022,km:31900, delegacion:'Getxo',           updated:'2025-05-13'},
+  {mat:'4680-EFG',marca:'Kia',       modelo:'Sportage',  ano:2020,km:73200, delegacion:'Barakaldo',       updated:'2025-05-07'},
+  {mat:'5791-HIJ',marca:'Peugeot',   modelo:'3008',      ano:2021,km:58400, delegacion:'Bilbao Norte',    updated:'2025-05-06'},
+  {mat:'0000-AAA',marca:'Citroën',   modelo:'C3',        ano:2019,km:91000, delegacion:'Getxo',           updated:'2025-05-01'},
+  {mat:'1111-BBB',marca:'Opel',      modelo:'Astra',     ano:2018,km:115000,delegacion:'Barakaldo',       updated:'2025-04-30'},
+];
+
+let importLog = [];
+let apiUrl = '';
+
+function renderBaseveh(){
+  renderBasevehKpis();
+  filtrarBaseVeh();
+  renderImportLog();
+  document.getElementById('api-url').value=apiUrl||'';
+  document.getElementById('api-status-badge').textContent=apiUrl?'Configurada':'Sin configurar';
+  document.getElementById('api-status-badge').className='badge '+(apiUrl?'b-rep':'b-pte-pre');
+}
+
+function renderBasevehKpis(){
+  const total=baseVehiculos.length;
+  const marcas=[...new Set(baseVehiculos.map(v=>v.marca))].length;
+  const delegs=[...new Set(baseVehiculos.map(v=>v.delegacion))].length;
+  document.getElementById('baseveh-kpis').innerHTML=`
+    <div class="kpi" style="border-left:3px solid var(--green)">
+      <div class="kpi-lbl"><i class="ti ti-car"></i>Vehículos en base</div>
+      <div class="kpi-val">${total}</div><div class="kpi-sub">registros cargados</div>
+    </div>
+    <div class="kpi" style="border-left:3px solid #90CAF9">
+      <div class="kpi-lbl"><i class="ti ti-brand-speedtest"></i>Marcas</div>
+      <div class="kpi-val">${marcas}</div><div class="kpi-sub">marcas distintas</div>
+    </div>
+    <div class="kpi" style="border-left:3px solid #FFCC80">
+      <div class="kpi-lbl"><i class="ti ti-map-pin"></i>Delegaciones</div>
+      <div class="kpi-val">${delegs}</div><div class="kpi-sub">delegaciones</div>
+    </div>`;
+}
+
+function filtrarBaseVeh(){
+  const q=(document.getElementById('baseveh-search')?.value||'').toLowerCase();
+  const lista=q ? baseVehiculos.filter(v=>
+    v.mat.toLowerCase().includes(q)||v.marca.toLowerCase().includes(q)||v.modelo.toLowerCase().includes(q)||v.delegacion.toLowerCase().includes(q)
+  ) : baseVehiculos;
+  document.getElementById('baseveh-table').innerHTML=lista.slice(0,50).map(v=>`<tr>
+    <td><span class="mat">${v.mat}</span></td>
+    <td>${v.marca}</td><td>${v.modelo}</td><td>${v.ano}</td>
+    <td>${v.km.toLocaleString('es-ES')} km</td>
+    <td style="font-size:12px;color:var(--t2)">${v.delegacion}</td>
+    <td style="font-size:11px;color:var(--t2)">${v.updated}</td>
+  </tr>`).join('')||`<tr><td colspan="7"><div class="empty"><i class="ti ti-search-off"></i><p>Sin resultados</p></div></td></tr>`;
+}
+
+function renderImportLog(){
+  const el=document.getElementById('import-log');
+  if(!importLog.length){el.innerHTML='<div class="empty"><i class="ti ti-history"></i><p>Aún no se han realizado importaciones</p></div>';return}
+  el.innerHTML=importLog.map(l=>`
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bd);font-size:12px">
+      <span><i class="ti ti-check" style="color:var(--green);margin-right:4px"></i>${l.nombre} — <strong>${l.count}</strong> vehículos importados</span>
+      <span style="color:var(--t2)">${l.fecha}</span>
+    </div>`).join('');
+}
+
+function importarCSV(input){
+  const file=input.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const text=e.target.result;
+    const lines=text.split('\n').filter(l=>l.trim());
+    if(lines.length<2){toast('El archivo está vacío o tiene formato incorrecto ⚠️');return}
+    const sep=lines[0].includes(';')?';':',';
+    const headers=lines[0].split(sep).map(h=>h.trim().toLowerCase().replace(/['"]/g,''));
+    const matIdx=headers.findIndex(h=>h.includes('matr'));
+    const marcaIdx=headers.findIndex(h=>h.includes('marca'));
+    const modeloIdx=headers.findIndex(h=>h.includes('modelo'));
+    const anoIdx=headers.findIndex(h=>h.includes('a') && h.includes('o'));
+    const kmIdx=headers.findIndex(h=>h.includes('km')||h.includes('kil'));
+    const delegIdx=headers.findIndex(h=>h.includes('deleg')||h.includes('zona')||h.includes('delegacion'));
+    if(matIdx<0){toast('No se encontró columna "matricula" en el CSV ⚠️');return}
+    let count=0;
+    lines.slice(1).forEach(line=>{
+      const cols=line.split(sep).map(c=>c.trim().replace(/['"]/g,''));
+      if(!cols[matIdx]) return;
+      const mat=cols[matIdx].toUpperCase();
+      const existing=baseVehiculos.findIndex(v=>v.mat===mat);
+      const entry={
+        mat, marca:cols[marcaIdx]||'—', modelo:cols[modeloIdx]||'—',
+        ano:parseInt(cols[anoIdx])||new Date().getFullYear(),
+        km:parseInt((cols[kmIdx]||'0').replace(/\./g,'').replace(',','.'))||0,
+        delegacion:cols[delegIdx]||'—', updated:new Date().toISOString().split('T')[0]
+      };
+      if(existing>=0) baseVehiculos[existing]=entry;
+      else baseVehiculos.push(entry);
+      count++;
+    });
+    importLog.unshift({nombre:file.name,count,fecha:new Date().toLocaleString('es-ES')});
+    input.value='';
+    renderBaseveh();
+    toast(`✓ ${count} vehículos importados desde ${file.name}`);
+  };
+  reader.readAsText(file,'UTF-8');
+}
+
+function descargarPlantilla(){
+  const csv='matricula;marca;modelo;ano;km;delegacion\n1234-ABC;Volkswagen;Golf;2020;62400;Bilbao Norte\n5678-DEF;Seat;Ibiza;2019;88300;Barakaldo\n';
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='plantilla_flota_corporativa.csv';
+  a.click();
+  toast('Plantilla descargada ✓');
+}
+
+async function testAPI(){
+  const url=document.getElementById('api-url').value.trim();
+  if(!url){toast('Introduce la URL del endpoint ⚠️');return}
+  apiUrl=url;
+  const testUrl=url.replace('{matricula}','TEST-000');
+  try{
+    toast('Probando conexión...');
+    const res=await fetch(testUrl,{mode:'cors'});
+    if(res.ok){
+      document.getElementById('api-status-badge').textContent='Conectada ✓';
+      document.getElementById('api-status-badge').className='badge b-rep';
+      toast('Conexión API correcta ✓');
+    } else {
+      throw new Error('HTTP '+res.status);
+    }
+  } catch(e){
+    document.getElementById('api-status-badge').textContent='Error de conexión';
+    document.getElementById('api-status-badge').className='badge b-pte-pre';
+    toast('No se pudo conectar: '+e.message+' (puede ser normal por CORS en prueba local)');
+  }
+}
+
+// ── Lookup de matrícula en "Abrir caso" ───────────────
+let lookupTimeout=null;
+function lookupMatricula(val){
+  clearTimeout(lookupTimeout);
+  const mat=val.toUpperCase().trim();
+  const box=document.getElementById('nc-mat-lookup');
+  if(!box) return;
+  if(mat.length<5){box.innerHTML='';return}
+  lookupTimeout=setTimeout(()=>{
+    // 1. Buscar en base local
+    const found=baseVehiculos.find(v=>v.mat===mat);
+    if(found){
+      autorellenarVehiculo(found);
+      box.innerHTML=`
+        <div class="veh-found-box">
+          <div class="veh-found-icon"><i class="ti ti-check" style="color:#fff;font-size:18px"></i></div>
+          <div>
+            <div class="veh-found-data">${found.marca} ${found.modelo} (${found.ano})</div>
+            <div class="veh-found-sub"><i class="ti ti-gauge" style="font-size:11px"></i> ${found.km.toLocaleString('es-ES')} km · ${found.delegacion}</div>
+          </div>
+        </div>`;
+      return;
+    }
+    // 2. Si hay API configurada, intentar llamada externa
+    if(apiUrl){
+      box.innerHTML=`<div style="font-size:12px;color:var(--t2);padding:6px 0"><i class="ti ti-loader" style="font-size:12px;animation:spin 1s linear infinite"></i> Consultando sistema corporativo...</div>`;
+      buscarEnAPI(mat).then(data=>{
+        if(data){
+          autorellenarVehiculo({...data,mat});
+          box.innerHTML=`
+            <div class="veh-found-box">
+              <div class="veh-found-icon"><i class="ti ti-plug" style="color:#fff;font-size:16px"></i></div>
+              <div>
+                <div class="veh-found-data">${data.marca} ${data.modelo} (${data.ano||'—'})</div>
+                <div class="veh-found-sub"><i class="ti ti-gauge" style="font-size:11px"></i> ${(data.km||0).toLocaleString('es-ES')} km · Obtenido de API corporativa</div>
+              </div>
+            </div>`;
+        } else {
+          box.innerHTML=`<div class="veh-not-found"><i class="ti ti-alert-circle" style="font-size:12px"></i> Matrícula no encontrada en el sistema corporativo. Rellena los datos manualmente.</div>`;
+        }
+      });
+      return;
+    }
+    // 3. No encontrado en ningún sitio
+    box.innerHTML=`<div class="veh-not-found"><i class="ti ti-alert-circle" style="font-size:12px"></i> Matrícula no encontrada en la base. Puedes importar el CSV corporativo en <strong>Base vehículos</strong>.</div>`;
+  },350);
+}
+
+function autorellenarVehiculo(data){
+  // Auto-rellena los campos ocultos del formulario de abrir caso
+  // Guardamos en un objeto global para usarlo al abrir el caso
+  window._vehEncontrado={marca:data.marca,modelo:data.modelo,ano:data.ano,km:data.km};
+  // Mostramos los KM prellenados en el campo
+  const kmInput=document.getElementById('nc-km');
+  if(kmInput&&data.km&&!kmInput.value) kmInput.value=data.km;
+}
+
+async function buscarEnAPI(mat){
+  if(!apiUrl) return null;
+  try{
+    const url=apiUrl.replace('{matricula}',encodeURIComponent(mat));
+    const res=await fetch(url,{mode:'cors'});
+    if(!res.ok) return null;
+    return await res.json();
+  } catch{ return null; }
+}
+
+function resetCaso(){
+  ['nc-mat','nc-averia','nc-km','nc-notas'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('nc-tipo').value='';
+  document.getElementById('nc-subtipo').innerHTML='';
+  document.getElementById('nc-sub-wrap').style.display='none';
+  document.getElementById('nc-recambios-wrap').style.display='none';
+  document.getElementById('nc-taller-id').value='';
+  document.getElementById('nc-taller-err').style.display='none';
+  document.getElementById('nc-mat-lookup').innerHTML='';
+  document.getElementById('nc-photos').value='';
+  document.getElementById('nc-prev').innerHTML='';
+  document.getElementById('nc-foto-req').style.display='none';
+  document.getElementById('nc-foto-err').style.display='none';
+  pendingPhotos['nc-photos']=[];
+  recSeleccionados=[];
+  window._vehEncontrado=null;
+}
+
+function getInfDates(){
+  const now = new Date();
+  let desde, hasta;
+  if(infPeriod==='semana'){
+    const day=now.getDay()||7;
+    desde=new Date(now); desde.setDate(now.getDate()-day+1); desde.setHours(0,0,0,0);
+    hasta=new Date(now); hasta.setHours(23,59,59,999);
+  } else if(infPeriod==='mes'){
+    desde=new Date(now.getFullYear(),now.getMonth(),1);
+    hasta=new Date(now.getFullYear(),now.getMonth()+1,0,23,59,59,999);
+  } else {
+    const d=document.getElementById('inf-desde')?.value;
+    const h=document.getElementById('inf-hasta')?.value;
+    desde=d?new Date(d):new Date(now.getFullYear(),now.getMonth(),1);
+    hasta=h?new Date(h+'T23:59:59'):new Date();
+  }
+  return {desde,hasta};
+}
+
+function setInfPeriod(p){
+  infPeriod=p;
+  ['semana','mes','custom'].forEach(x=>{
+    document.getElementById('inf-period-'+x)?.classList.toggle('active',x===p);
+  });
+  const customDates=document.getElementById('inf-custom-dates');
+  if(customDates) customDates.style.display=p==='custom'?'flex':'none';
+  renderInformes();
+}
+
+function renderInformes(){
+  // Poblar selector de taller
+  const sel=document.getElementById('inf-taller-filter');
+  if(sel){
+    const prev=sel.value;
+    sel.innerHTML='<option value="">Todos los talleres</option>'+
+      talleres.map(t=>`<option value="${t.id}">${t.nombre} · ${t.ciudad}</option>`).join('');
+    // Gestor solo ve SU delegación (su taller asignado)
+    if(role==='gestor'&&tallerSeleccionadoId){
+      sel.value=tallerSeleccionadoId;
+      sel.disabled=true;
+    } else {
+      sel.disabled=false;
+      if(prev) sel.value=prev;
+    }
+  }
+
+  const {desde,hasta}=getInfDates();
+  const tallerFiltro=parseInt(document.getElementById('inf-taller-filter')?.value)||null;
+
+  // Formatear label de período
+  const opts={day:'numeric',month:'long'};
+  const lbl=`${desde.toLocaleDateString('es-ES',opts)} — ${hasta.toLocaleDateString('es-ES',opts)}`;
+  document.getElementById('inf-period-label').textContent=lbl;
+
+  // Filtrar datos (historial + vehículos activos con estado pte-factura o rep)
+  const activosComoRep = veh
+    .filter(v=>['pte-factura','rep'].includes(v.estado)&&v.pres>0)
+    .map(v=>({
+      mat:v.mat, marca:v.marca, modelo:v.modelo,
+      tallerId:v.tallerId||null,
+      tallerNombre:talleres.find(t=>t.id===v.tallerId)?.nombre||'Sin asignar',
+      tipo:'mecanica', desc:v.desc||'—',
+      dias:v.dias, pres:v.pres, estado:v.estado,
+      fecha:new Date().toISOString().split('T')[0]
+    }));
+
+  let datos=[...historial,...activosComoRep].filter(r=>{
+    const f=new Date(r.fecha);
+    const inRange=f>=desde&&f<=hasta;
+    const inTaller=!tallerFiltro||r.tallerId===tallerFiltro;
+    return inRange&&inTaller;
+  });
+
+  if(!datos.length){
+    document.getElementById('inf-kpis').innerHTML=`<div class="kpi" style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--t2)"><i class="ti ti-chart-bar" style="font-size:28px;display:block;margin-bottom:8px;color:var(--bd)"></i>Sin datos para el período seleccionado</div>`;
+    document.getElementById('inf-tabla').innerHTML=`<tr><td colspan="8"><div class="empty"><i class="ti ti-file-off"></i><p>Sin reparaciones en este período</p></div></td></tr>`;
+    document.getElementById('inf-resumen').innerHTML='';
+    document.getElementById('inf-chart').innerHTML='';
+    document.getElementById('inf-total-badge').textContent='';
+    return;
+  }
+
+  const total=datos.length;
+  const importeTotal=datos.reduce((a,r)=>a+r.pres,0);
+  const diasMed=Math.round(datos.reduce((a,r)=>a+r.dias,0)/total*10)/10;
+  const importeMed=Math.round(importeTotal/total);
+
+  // KPIs
+  document.getElementById('inf-kpis').innerHTML=`
+    <div class="kpi" style="border-left:3px solid var(--green)">
+      <div class="kpi-lbl"><i class="ti ti-tool"></i>Reparaciones</div>
+      <div class="kpi-val">${total}</div><div class="kpi-sub">en el período</div>
+    </div>
+    <div class="kpi" style="border-left:3px solid #90CAF9">
+      <div class="kpi-lbl"><i class="ti ti-currency-euro"></i>Importe total</div>
+      <div class="kpi-val">${importeTotal.toLocaleString('es-ES')} €</div><div class="kpi-sub">facturado</div>
+    </div>
+    <div class="kpi" style="border-left:3px solid #FFCC80">
+      <div class="kpi-lbl"><i class="ti ti-clock"></i>Días medios</div>
+      <div class="kpi-val">${diasMed}d</div><div class="kpi-sub">por reparación</div>
+    </div>
+    <div class="kpi" style="border-left:3px solid #F48FB1">
+      <div class="kpi-lbl"><i class="ti ti-receipt"></i>Importe medio</div>
+      <div class="kpi-val">${importeMed.toLocaleString('es-ES')} €</div><div class="kpi-sub">por vehículo</div>
+    </div>`;
+
+  // Resumen por taller
+  const porTaller={};
+  datos.forEach(r=>{
+    const k=r.tallerNombre||'Sin asignar';
+    if(!porTaller[k]) porTaller[k]={nombre:k,ciudad:talleres.find(t=>t.nombre===k)?.ciudad||'—',count:0,dias:0,importe:0};
+    porTaller[k].count++;
+    porTaller[k].dias+=r.dias;
+    porTaller[k].importe+=r.pres;
+  });
+  const maxImporte=Math.max(...Object.values(porTaller).map(t=>t.importe));
+
+  // Gráfico barras
+  const colores=['#1A7A4A','#2ECC71','#0D47A1','#E65100','#880E4F'];
+  const bars=Object.values(porTaller).map((t,i)=>`
+    <div class="inf-bar-col">
+      <div class="inf-bar-val">${t.importe.toLocaleString('es-ES')} €</div>
+      <div class="inf-bar" style="height:${Math.max(8,Math.round((t.importe/maxImporte)*110))}px;background:${colores[i%colores.length]}" title="${t.nombre}: ${t.importe.toLocaleString('es-ES')} €"></div>
+      <div class="inf-bar-lbl">${t.nombre.split(' ').slice(0,2).join(' ')}</div>
+    </div>`).join('');
+  document.getElementById('inf-chart').innerHTML=`<div class="inf-bar-wrap">${bars}</div>`;
+
+  // Tabla resumen
+  document.getElementById('inf-resumen').innerHTML=Object.values(porTaller).map(t=>`<tr>
+    <td style="font-weight:600">${t.nombre}</td>
+    <td style="color:var(--t2)">${t.ciudad}</td>
+    <td style="font-weight:600;color:var(--green)">${t.count}</td>
+    <td>${Math.round(t.dias/t.count*10)/10}d</td>
+    <td style="font-weight:700">${t.importe.toLocaleString('es-ES')} €</td>
+    <td style="color:var(--t2)">${Math.round(t.importe/t.count).toLocaleString('es-ES')} €</td>
+  </tr>`).join('');
+
+  // Tabla detallada
+  document.getElementById('inf-total-badge').textContent=`${total} registros`;
+  const tipoLabel={mecanica:'Mecánica',carroceria:'Carrocería',llaves:'Llaves',repuestos:'Repuestos'};
+  document.getElementById('inf-tabla').innerHTML=datos.map(r=>`<tr>
+    <td><span class="mat">${r.mat}</span></td>
+    <td><span class="mat">${r.marca} ${r.modelo}</span></td>
+    <td style="font-size:12px">${r.tallerNombre}</td>
+    <td>${sb(r.estado==='pte-factura'?'pte-factura':r.estado)||`<span class="badge b-rep">${tipoLabel[r.tipo]||r.tipo}</span>`}</td>
+    <td style="font-size:12px;color:var(--t2);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.desc}</td>
+    <td class="${r.dias>7?'warn':''}">${r.dias}d</td>
+    <td style="font-weight:600">${r.pres.toLocaleString('es-ES')} €</td>
+    <td>${sb(r.estado)}</td>
+  </tr>`).join('');
+}
+
+function exportarInforme(){
+  window.print();
+}
+
+function exportarCSV(){
+  const {desde,hasta}=getInfDates();
+  const tallerFiltro=parseInt(document.getElementById('inf-taller-filter')?.value)||null;
+  const datos=[...historial,...veh.filter(v=>['pte-factura','rep'].includes(v.estado)&&v.pres>0)
+    .map(v=>({mat:v.mat,marca:v.marca,modelo:v.modelo,tallerId:v.tallerId,
+      tallerNombre:talleres.find(t=>t.id===v.tallerId)?.nombre||'Sin asignar',
+      tipo:'mecanica',desc:v.desc||'—',dias:v.dias,pres:v.pres,estado:v.estado,
+      fecha:new Date().toISOString().split('T')[0]}))
+  ].filter(r=>{
+    const f=new Date(r.fecha);
+    return f>=desde&&f<=hasta&&(!tallerFiltro||r.tallerId===tallerFiltro);
+  });
+
+  const hdr=['Matrícula','Marca','Modelo','Taller','Tipo','Descripción','Días','Importe €','Estado','Fecha'];
+  const rows=datos.map(r=>[r.mat,r.marca,r.modelo,r.tallerNombre,r.tipo,`"${r.desc}"`,r.dias,r.pres,r.estado,r.fecha]);
+  const csv=[hdr,...rows].map(r=>r.join(';')).join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`informe_flota_${infPeriod}_${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  toast('CSV descargado ✓');
+}
+
+// ══════════════════════════════════════════════════════
+//  TARIFAS ACORDADAS POR TALLER
+// ══════════════════════════════════════════════════════
+let tarifasEditTallerId = null;
+
+// Tarifas de ejemplo pre-cargadas
+talleres[0].tarifas = [
+  {id:1,desc:'Hora mano de obra mecánica',     cat:'Mano de obra',precio:55},
+  {id:2,desc:'Hora mano de obra carrocería',    cat:'Mano de obra',precio:65},
+  {id:3,desc:'Diagnosis electrónica',           cat:'Eléctrico',  precio:45},
+  {id:4,desc:'Cambio pastillas freno delanteras',cat:'Frenos',    precio:35},
+  {id:5,desc:'Cambio pastillas freno traseras', cat:'Frenos',     precio:30},
+  {id:6,desc:'Cambio discos delanteros',        cat:'Frenos',     precio:50},
+  {id:7,desc:'Revisión 30.000 km',              cat:'Mano de obra',precio:120},
+  {id:8,desc:'Revisión 60.000 km',              cat:'Mano de obra',precio:180},
+  {id:9,desc:'Cambio filtro aceite',            cat:'Motor',      precio:15},
+  {id:10,desc:'Cambio aceite motor',            cat:'Motor',      precio:25},
+];
+talleres[1].tarifas = [
+  {id:1,desc:'Hora mano de obra carrocería',    cat:'Mano de obra',precio:70},
+  {id:2,desc:'Reparación abolladuras pequeñas', cat:'Carrocería', precio:150},
+  {id:3,desc:'Reparación abolladuras grandes',  cat:'Carrocería', precio:350},
+  {id:4,desc:'Sustitución parabrisas',          cat:'Carrocería', precio:280},
+  {id:5,desc:'Pintura aleta',                   cat:'Carrocería', precio:220},
+  {id:6,desc:'Pintura puerta completa',         cat:'Carrocería', precio:300},
+];
+
+function openTarifas(i){
+  tarifasEditTallerId=talleres[i].id;
+  if(!talleres[i].tarifas) talleres[i].tarifas=[];
+  document.getElementById('m-tar-title').textContent='Tarifas acordadas';
+  document.getElementById('m-tar-sub').textContent=talleres[i].nombre+' · '+talleres[i].ciudad;
+  document.getElementById('tar-cat-filter').value='';
+  document.getElementById('tar-search').value='';
+  document.getElementById('tar-new-desc').value='';
+  document.getElementById('tar-new-precio').value='';
+  renderTarifasModal();
+  openM('m-tarifas');
+}
+
+function renderTarifasModal(){
+  const t=talleres.find(t=>t.id===tarifasEditTallerId);
+  if(!t) return;
+  const cat=document.getElementById('tar-cat-filter').value;
+  const q=(document.getElementById('tar-search').value||'').toLowerCase();
+  const lista=(t.tarifas||[]).filter(l=>(!cat||l.cat===cat)&&(!q||l.desc.toLowerCase().includes(q)));
+  const catColors={'Mano de obra':'#E8F5E9','Motor':'#FFF8E1','Frenos':'#FFEBEE','Carrocería':'#E3F2FD',
+    'Eléctrico':'#F3E5F5','Climatización':'#E0F7FA','Suspensión':'#FFF3E0','Neumáticos':'#F1F8E9','Transmisión':'#FCE4EC','Otros':'#F5F5F5'};
+  document.getElementById('tar-lineas').innerHTML=lista.length
+    ? lista.map(l=>`
+        <div style="display:grid;grid-template-columns:1fr 120px 90px 60px;gap:8px;padding:7px 10px;border-bottom:1px solid var(--bd);align-items:center;font-size:12px">
+          <span style="font-weight:500">${l.desc}</span>
+          <span style="background:${catColors[l.cat]||'#f5f5f5'};padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500">${l.cat}</span>
+          <span style="font-weight:600;color:var(--green)">${parseFloat(l.precio).toLocaleString('es-ES',{minimumFractionDigits:2})} €</span>
+          <button onclick="deleteTarifa(${l.id})" style="background:none;border:none;color:var(--bd);cursor:pointer;font-size:14px" onmouseover="this.style.color='#C62828'" onmouseout="this.style.color='var(--bd)'"><i class="ti ti-x"></i></button>
+        </div>`).join('')
+    : `<div style="text-align:center;padding:1.5rem;font-size:13px;color:var(--t2)">Sin tarifas. Añade la primera abajo.</div>`;
+}
+
+function addTarifa(){
+  const t=talleres.find(t=>t.id===tarifasEditTallerId);
+  if(!t) return;
+  const desc=document.getElementById('tar-new-desc').value.trim();
+  const cat=document.getElementById('tar-new-cat').value;
+  const precio=parseFloat(document.getElementById('tar-new-precio').value);
+  if(!desc){toast('Introduce la descripción ⚠️');return}
+  if(!precio||precio<=0){toast('Introduce un precio válido ⚠️');return}
+  if(!t.tarifas) t.tarifas=[];
+  t.tarifas.push({id:Date.now(),desc,cat,precio});
+  document.getElementById('tar-new-desc').value='';
+  document.getElementById('tar-new-precio').value='';
+  renderTarifasModal();
+  toast('Tarifa añadida ✓');
+}
+
+function deleteTarifa(tarId){
+  const t=talleres.find(t=>t.id===tarifasEditTallerId);
+  if(!t) return;
+  t.tarifas=(t.tarifas||[]).filter(l=>l.id!==tarId);
+  renderTarifasModal();
+}
+
+function onCasoTallerChange(){
+  document.getElementById('nc-taller-err').style.display='none';
+  const id=parseInt(document.getElementById('nc-taller-id').value)||null;
+  const preview=document.getElementById('nc-tarifas-preview');
+  const lista=document.getElementById('nc-tarifas-list');
+  if(!id){preview.style.display='none';return}
+  const t=talleres.find(t=>t.id===id);
+  if(!t||!t.tarifas||!t.tarifas.length){preview.style.display='none';return}
+  preview.style.display='block';
+  lista.innerHTML=t.tarifas.map(l=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--gb);font-size:12px">
+      <span>${l.desc} <span style="color:var(--t2);font-size:10px">(${l.cat})</span></span>
+      <span style="font-weight:600;color:var(--green);white-space:nowrap;margin-left:8px">${parseFloat(l.precio).toLocaleString('es-ES',{minimumFractionDigits:2})} €</span>
+    </div>`).join('');
+  lista.style.display='flex';
+  lista.style.flexDirection='column';
+}
+
+function buscarPrecioEnTarifa(desc, tallerId){
+  if(!desc||!tallerId) return null;
+  const t=talleres.find(t=>t.id===tallerId);
+  if(!t||!t.tarifas) return null;
+  const q=desc.toLowerCase().trim();
+  const match=t.tarifas.find(l=>l.desc.toLowerCase().includes(q)||q.includes(l.desc.toLowerCase().substring(0,10)));
+  return match?match.precio:null;
+}
+
+// ══════════════════════════════════════════════════════
+function enviarNotif(toEmail, toNombre, asunto, vehiculo, mensaje, accion, replyTo){
+  if(EJS_TPL_NOTIF==='PENDIENTE'){
+    console.log('[EmailJS] Plantilla no configurada todavía — email simulado a:',toEmail);
+    return;
+  }
+  if(!toEmail||!/\S+@\S+\.\S+/.test(toEmail)){
+    console.warn('[EmailJS] Email destinatario no válido:',toEmail);
+    return;
+  }
+  emailjs.send(EJS_SERVICE_ID, EJS_TPL_NOTIF, {
+    to_email: toEmail,
+    to_nombre: toNombre,
+    asunto,
+    vehiculo,
+    mensaje,
+    accion,
+    reply_to: replyTo||'Fleetossoftware@gmail.com'
+  }).then(()=>{
+    console.log('[EmailJS] Notificación enviada a',toEmail);
+  }).catch(err=>{
+    console.error('[EmailJS] Error al enviar:',err);
+    toast('⚠️ No se pudo enviar el email de notificación');
+  });
+}
+
+// ══════════════════════════════════════════════════════
+//  FOTOS
+// ══════════════════════════════════════════════════════
+function handlePhotos(input,previewId){
+  const files=Array.from(input.files).slice(0,10);
+  pendingPhotos[input.id]=[];
+  const prev=document.getElementById(previewId);
+  prev.innerHTML='';
+  files.forEach(file=>{
+    const r=new FileReader();
+    r.onload=e=>{
+      pendingPhotos[input.id].push(e.target.result);
+      const d=document.createElement('div');d.className='thumb';
+      const img=document.createElement('img');img.src=e.target.result;
+      d.appendChild(img);prev.appendChild(d);
+    };
+    r.readAsDataURL(file);
+  });
+}
+
+// ══════════════════════════════════════════════════════
+//  MODALES
+// ══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+//  MÓDULO TALLER — CLIENTES
+// ══════════════════════════════════════════════════════
+
+const TC_ESTADOS = {
+  'nuevo':       {label:'Nuevo',              cls:'b-pte-pre'},
+  'pte-ok-pres': {label:'Pte. OK presupuesto',cls:'b-pte-aut'},
+  'ok-pres':     {label:'Presupuesto OK',     cls:'b-aut'},
+  'en-reparacion':{label:'En reparación',     cls:'b-reparacion'},
+  'pte-factura': {label:'Pte. factura',       cls:'b-pte-fac'},
+  'facturado':   {label:'Facturado',          cls:'b-rep'},
+};
+
+let tcClientes = [
+  {id:1, nombre:'Carlos García', apellidos:'López', tel:'+34 644 123 456', email:'carlos@email.com', dni:'12345678A'},
+  {id:2, nombre:'María Ruiz',    apellidos:'Pérez',  tel:'+34 655 987 321', email:'maria.ruiz@gmail.com', dni:'87654321B'},
+];
+
+let tcCasos = [
+  {id:1, clienteId:1, mat:'4321-ZYX', marca:'Peugeot', modelo:'208', ano:2021, km:48000, dano:'Golpe lateral puerta trasera', estado:'pte-ok-pres', pres:380, factura:null, fotos:[]},
+  {id:2, clienteId:2, mat:'8765-WVU', marca:'Renault',  modelo:'Clio', ano:2019, km:72000, dano:'Revisión + cambio pastillas', estado:'ok-pres',    pres:215, factura:null, fotos:[]},
+];
+
+let tcEditCaso = -1;
+let tcFilterEstado = 'todos';
+
+// ── LOGIN TALLER CLIENTE ──────────────────────────────
+function initTallerClienteNav(){
+  const all = ['dashboard','vehiculos','presupuestos','recepcion','caso','talleres','informes','baseveh'];
+  const tc  = ['nav-tc-clientes','nav-tc-casos','nav-tc-nuevo'];
+  all.forEach(n=>{
+    const el=document.getElementById('nav-'+n);
+    if(el) el.style.display='none';
+  });
+  tc.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.style.display='flex';
+  });
+  document.getElementById('btn-add')?.style && (document.getElementById('btn-add').style.display='none');
+}
+
+// ── SETVIEW para taller-cliente ───────────────────────
+const TC_VIEWS = ['tc-clientes','tc-casos','tc-nuevo'];
+
+function setViewTC(v){
+  TC_VIEWS.forEach(n=>{
+    document.getElementById('view-'+n).style.display=n===v?'block':'none';
+    const nav=document.getElementById('nav-'+n);
+    if(nav) nav.classList.toggle('active',n===v);
+  });
+  if(v==='tc-clientes') renderTcClientes();
+  if(v==='tc-casos')    renderTcCasos();
+  if(v==='tc-nuevo')    initTcNuevo();
+}
+
+// ── CLIENTES ──────────────────────────────────────────
+function renderTcClientes(){
+  const q=(document.getElementById('tc-search-cli')?.value||'').toLowerCase();
+  const lista=q?tcClientes.filter(c=>(c.nombre+' '+c.apellidos+c.email+c.tel).toLowerCase().includes(q)):tcClientes;
+  document.getElementById('tc-clientes-table').innerHTML=lista.map(c=>{
+    const casos=tcCasos.filter(x=>x.clienteId===c.id);
+    const abiertos=casos.filter(x=>!['facturado'].includes(x.estado)).length;
+    return `<tr>
+      <td><span class="mat">${c.nombre} ${c.apellidos}</span></td>
+      <td style="font-size:12px">${c.tel}</td>
+      <td style="font-size:12px">${c.email}</td>
+      <td>${casos.length}</td>
+      <td>${abiertos>0?`<span class="badge b-pte-aut">${abiertos} abierto${abiertos>1?'s':''}</span>`:'<span style="color:var(--t2);font-size:12px">—</span>'}</td>
+      <td><button class="btn-g" style="font-size:11px;padding:4px 10px" onclick="verCasosCliente(${c.id})"><i class="ti ti-eye"></i>Ver casos</button></td>
+    </tr>`;
+  }).join('')||`<tr><td colspan="6"><div class="empty"><i class="ti ti-users"></i><p>Sin clientes</p></div></td></tr>`;
+}
+
+function filtrarClientes(){renderTcClientes()}
+
+function verCasosCliente(id){
+  tcFilterEstado='todos';
+  // Filtrar por cliente
+  setViewTC('tc-casos');
+  renderTcCasos(id);
+}
+
+function saveCliente(){
+  const nombre=document.getElementById('tc-cli-nombre').value.trim();
+  const tel=document.getElementById('tc-cli-tel').value.trim();
+  const email=document.getElementById('tc-cli-email').value.trim();
+  if(!nombre){toast('Nombre obligatorio ⚠️');return}
+  if(!tel){toast('Teléfono obligatorio ⚠️');return}
+  if(!email||!/\S+@\S+\.\S+/.test(email)){toast('Email válido obligatorio ⚠️');return}
+  const c={
+    id:Date.now(),nombre,
+    apellidos:document.getElementById('tc-cli-apellidos').value.trim(),
+    tel,email,
+    dni:document.getElementById('tc-cli-dni').value.trim(),
+  };
+  tcClientes.push(c);
+  ['tc-cli-nombre','tc-cli-apellidos','tc-cli-tel','tc-cli-email','tc-cli-dni'].forEach(id=>document.getElementById(id).value='');
+  closeM('m-tc-cliente');
+  toast(`Cliente ${c.nombre} añadido ✓`);
+  // actualizar selector en nuevo caso
+  poblarTcClienteSel();
+  renderTcClientes();
+}
+
+// ── CASOS ─────────────────────────────────────────────
+function renderTcCasos(filtroClienteId=null){
+  // Filtros de estado
+  const keys=['todos',...Object.keys(TC_ESTADOS)];
+  document.getElementById('tc-casos-filters').innerHTML=keys.map(k=>
+    `<button class="fbtn${tcFilterEstado===k?' active':''}" onclick="setTcFilter('${k}')">${k==='todos'?'Todos':TC_ESTADOS[k].label}</button>`
+  ).join('');
+
+  let lista=filtroClienteId
+    ? tcCasos.filter(c=>c.clienteId===filtroClienteId)
+    : tcCasos;
+  if(tcFilterEstado!=='todos') lista=lista.filter(c=>c.estado===tcFilterEstado);
+
+  // KPIs
+  const total=tcCasos.length;
+  const pteOk=tcCasos.filter(c=>c.estado==='pte-ok-pres').length;
+  const enRep=tcCasos.filter(c=>c.estado==='en-reparacion'||c.estado==='ok-pres').length;
+  const pteFac=tcCasos.filter(c=>c.estado==='pte-factura').length;
+  document.getElementById('tc-kpis').innerHTML=`
+    <div class="kpi" style="border-left:3px solid var(--green)"><div class="kpi-lbl"><i class="ti ti-clipboard-list"></i>Total casos</div><div class="kpi-val">${total}</div></div>
+    <div class="kpi" style="border-left:3px solid #90CAF9"><div class="kpi-lbl"><i class="ti ti-clock"></i>Pte. OK presupuesto</div><div class="kpi-val">${pteOk}</div><div class="kpi-sub kpi-up">esperando al cliente</div></div>
+    <div class="kpi" style="border-left:3px solid #FFCC80"><div class="kpi-lbl"><i class="ti ti-tool"></i>En reparación</div><div class="kpi-val">${enRep}</div></div>
+    <div class="kpi" style="border-left:3px solid #F48FB1"><div class="kpi-lbl"><i class="ti ti-receipt"></i>Pte. factura</div><div class="kpi-val">${pteFac}</div><div class="kpi-sub kpi-up">pendientes de facturar</div></div>`;
+
+  document.getElementById('tc-casos-table').innerHTML=lista.map(c=>{
+    const cli=tcClientes.find(x=>x.id===c.clienteId)||{nombre:'Desconocido'};
+    const est=TC_ESTADOS[c.estado]||{label:c.estado,cls:''};
+    let acc='';
+    if(c.estado==='nuevo'){
+      acc=`<button class="btn-blue" style="font-size:11px;padding:4px 10px" onclick="openTcPresupuesto(${c.id})"><i class="ti ti-upload"></i>Subir presupuesto</button>`;
+    } else if(c.estado==='pte-ok-pres'){
+      acc=`<span style="font-size:11px;color:var(--t2);font-style:italic">Esperando OK del cliente...</span>`;
+    } else if(c.estado==='ok-pres'){
+      acc=`<button class="btn-rep" style="font-size:11px;padding:4px 10px" onclick="marcarEnReparacion(${c.id})"><i class="ti ti-tool"></i>Iniciar reparación</button>`;
+    } else if(c.estado==='en-reparacion'){
+      acc=`<button class="btn-p" style="font-size:12px;padding:5px 12px" onclick="openTcFactura(${c.id})"><i class="ti ti-receipt"></i>Subir factura</button>`;
+    } else if(c.estado==='pte-factura'){
+      acc=`<span style="font-size:11px;color:var(--t2);font-style:italic">Esperando pago cliente...</span>`;
+    } else if(c.estado==='facturado'){
+      acc=`<span class="badge b-rep">Completado ✓</span>`;
+    }
+    return `<tr>
+      <td><span class="mat">${cli.nombre}</span><div class="sub">${cli.tel}</div></td>
+      <td><span class="mat">${c.marca} ${c.modelo}</span><div class="sub">${c.mat} · ${c.ano}</div></td>
+      <td style="max-width:180px;font-size:12px;color:var(--t2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.dano}</td>
+      <td><span class="badge ${est.cls}">${est.label}</span></td>
+      <td>${c.pres?c.pres.toLocaleString('es-ES')+' €':'—'}</td>
+      <td style="white-space:nowrap">${acc}</td>
+    </tr>`;
+  }).join('')||`<tr><td colspan="6"><div class="empty"><i class="ti ti-clipboard-off"></i><p>Sin casos</p></div></td></tr>`;
+}
+
+function setTcFilter(f){tcFilterEstado=f;renderTcCasos()}
+
+function marcarEnReparacion(id){
+  const c=tcCasos.find(x=>x.id===id);
+  if(c){c.estado='en-reparacion';toast('Caso marcado como en reparación ✓');renderTcCasos();}
+}
+
+// ── NUEVO CASO ────────────────────────────────────────
+function initTcNuevo(){
+  poblarTcClienteSel();
+  document.getElementById('tc-mat-found').style.display='none';
+}
+
+function poblarTcClienteSel(){
+  const sel=document.getElementById('tc-cli-sel');
+  if(!sel) return;
+  sel.innerHTML='<option value="">— Selecciona cliente o crea uno nuevo —</option>'+
+    tcClientes.map(c=>`<option value="${c.id}">${c.nombre} ${c.apellidos} · ${c.tel}</option>`).join('');
+}
+
+function onTcClienteChange(){
+  // por ahora solo limpia campos
+}
+
+function tcLookupMat(val){
+  const found=baseVehiculos.find(v=>v.mat===val.toUpperCase());
+  const box=document.getElementById('tc-mat-found');
+  if(found){
+    document.getElementById('tc-mat-data').textContent=found.marca+' '+found.modelo+' ('+found.ano+')';
+    document.getElementById('tc-mat-sub').textContent=found.km.toLocaleString('es-ES')+' km · '+found.delegacion;
+    document.getElementById('tc-marca').value=found.marca;
+    document.getElementById('tc-modelo').value=found.modelo;
+    document.getElementById('tc-ano').value=found.ano;
+    document.getElementById('tc-km').value=found.km;
+    box.style.display='flex';
+  } else {
+    box.style.display='none';
+  }
+}
+
+function abrirCasoTaller(){
+  const cliId=parseInt(document.getElementById('tc-cli-sel').value)||null;
+  const mat=document.getElementById('tc-mat').value.trim();
+  const marca=document.getElementById('tc-marca').value.trim();
+  const modelo=document.getElementById('tc-modelo').value.trim();
+  const dano=document.getElementById('tc-dano').value.trim();
+  if(!cliId){toast('Selecciona un cliente ⚠️');return}
+  if(!mat){toast('Matrícula obligatoria ⚠️');return}
+  if(!marca||!modelo){toast('Marca y modelo obligatorios ⚠️');return}
+  if(!dano){toast('Describe el daño ⚠️');return}
+  const fotos=pendingPhotos['tc-photos']||[];
+  const caso={
+    id:Date.now(), clienteId:cliId, mat,marca,modelo,
+    ano:parseInt(document.getElementById('tc-ano').value)||new Date().getFullYear(),
+    km:parseInt(document.getElementById('tc-km').value)||0,
+    dano, estado:'nuevo', pres:null, factura:null, fotos,
+  };
+  tcCasos.unshift(caso);
+  resetTcNuevo();
+  toast(`Caso abierto para ${mat} ✓`);
+  setViewTC('tc-casos');
+}
+
+function resetTcNuevo(){
+  ['tc-mat','tc-marca','tc-modelo','tc-ano','tc-km','tc-dano'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('tc-cli-sel').value='';
+  document.getElementById('tc-mat-found').style.display='none';
+  document.getElementById('tc-photos-prev').innerHTML='';
+  pendingPhotos['tc-photos']=[];
+}
+
+// ── PRESUPUESTO → CLIENTE ─────────────────────────────
+function openTcPresupuesto(id){
+  tcEditCaso=id;
+  const c=tcCasos.find(x=>x.id===id);
+  const cli=tcClientes.find(x=>x.id===c.clienteId)||{};
+  document.getElementById('tc-pres-cliente').textContent=cli.nombre+' '+cli.apellidos+' · '+cli.email;
+  document.getElementById('tc-pres-vehiculo').textContent=c.mat+' — '+c.marca+' '+c.modelo+' ('+c.ano+')';
+  document.getElementById('tc-pres-importe').value='';
+  document.getElementById('tc-pres-fname').textContent='Clic para seleccionar PDF';
+  document.getElementById('tc-pres-msg').value='Adjuntamos el presupuesto para la reparación de su vehículo. Por favor confírmenos si desea proceder.';
+  openM('m-tc-presupuesto');
+}
+
+function enviarPresupuestoCliente(){
+  const importe=parseFloat(document.getElementById('tc-pres-importe').value);
+  const fname=document.getElementById('tc-pres-fname').textContent;
+  if(!importe||importe<=0){toast('Introduce el importe ⚠️');return}
+  if(fname==='Clic para seleccionar PDF'){toast('Selecciona el PDF del presupuesto ⚠️');return}
+  const sendEmail=document.getElementById('tc-send-email').checked;
+  const sendWa=document.getElementById('tc-send-wa').checked;
+  if(!sendEmail&&!sendWa){toast('Selecciona al menos un canal de envío ⚠️');return}
+
+  const c=tcCasos.find(x=>x.id===tcEditCaso);
+  const cli=tcClientes.find(x=>x.id===c.clienteId)||{};
+  c.pres=importe;
+  c.estado='pte-ok-pres';
+
+  // Simular envío
+  const canales=[];
+  if(sendEmail) canales.push('email a '+cli.email);
+  if(sendWa) canales.push('WhatsApp a '+cli.tel);
+
+  closeM('m-tc-presupuesto');
+  toast(`Presupuesto enviado por ${canales.join(' y ')} ✓`);
+  renderTcCasos();
+}
+
+// ── FACTURA → CLIENTE ─────────────────────────────────
+function openTcFactura(id){
+  tcEditCaso=id;
+  const c=tcCasos.find(x=>x.id===id);
+  const cli=tcClientes.find(x=>x.id===c.clienteId)||{};
+  document.getElementById('tc-fact-cliente').textContent=cli.nombre+' '+cli.apellidos+' · '+cli.email;
+  document.getElementById('tc-fact-vehiculo').textContent=c.mat+' — '+c.marca+' '+c.modelo+' ('+c.ano+')';
+  document.getElementById('tc-fact-num').value='';
+  document.getElementById('tc-fact-importe').value=c.pres||'';
+  document.getElementById('tc-fact-fname').textContent='Clic para seleccionar PDF';
+  openM('m-tc-factura');
+}
+
+function enviarFacturaCliente(){
+  const num=document.getElementById('tc-fact-num').value.trim();
+  const importe=parseFloat(document.getElementById('tc-fact-importe').value);
+  const fname=document.getElementById('tc-fact-fname').textContent;
+  if(!num){toast('Introduce el número de factura ⚠️');return}
+  if(!importe||importe<=0){toast('Introduce el importe ⚠️');return}
+  if(fname==='Clic para seleccionar PDF'){toast('Selecciona el PDF de la factura ⚠️');return}
+  const sendEmail=document.getElementById('tc-fact-email').checked;
+  const sendWa=document.getElementById('tc-fact-wa').checked;
+  if(!sendEmail&&!sendWa){toast('Selecciona al menos un canal ⚠️');return}
+
+  const c=tcCasos.find(x=>x.id===tcEditCaso);
+  const cli=tcClientes.find(x=>x.id===c.clienteId)||{};
+  c.factura={num,importe};
+  c.estado='facturado';
+
+  const canales=[];
+  if(sendEmail) canales.push('email a '+cli.email);
+  if(sendWa) canales.push('WhatsApp a '+cli.tel);
+
+  closeM('m-tc-factura');
+  toast(`Factura enviada por ${canales.join(' y ')} ✓`);
+  renderTcCasos();
+}
+
+// ══════════════════════════════════════════════════════
+function openM(id){document.getElementById(id).classList.add('open')}
+function closeM(id){document.getElementById(id).classList.remove('open')}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-bg.open').forEach(m=>m.classList.remove('open'))});
+document.querySelectorAll('.modal-bg').forEach(bg=>{bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove('open')})});
+
+// ══════════════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════════════
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// Inicializar al cargar
+renderDemoUsers();
+</script>
+</body>
+</html>
